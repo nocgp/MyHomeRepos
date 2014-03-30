@@ -1,0 +1,26 @@
+************************
+* Author               : konkina.iana@gmail.com
+* Company              : Zystems
+* Customer             : VCC
+* 					   : 
+*                      :
+* Description          : Websphere MQSeries info from list of servers
+*                      :
+*                      : 
+*                      : 
+*                      : 
+*                      : 
+*                      : 
+*                      : 
+*                      : 
+************************
+
+1) update expect.exp file with your current password ;
+2) update start_script.sh with list of servers that you want to check;
+3) start  start_expect.exp YOUR_PASS, it will collect all needful data and it will send the data to mail@box mailbox;
+
+At the end you can compare list of servers that was checked with list of servers that you asked to check on the 2nd step.
+
+
+
+
