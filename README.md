@@ -1,4 +1,5 @@
 MyHomeRepos
 ===========
 
-Java tasks and others
+"There is nothing as practical as good theory" - Kurt Lewin
+:)
