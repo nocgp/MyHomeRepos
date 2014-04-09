@@ -8,5 +8,7 @@ tail -f /var/log/jenkins/jenkins.log
 
 ******************************************************
 
+monitoring external jobs:
+http://kvdev.wordpress.com/2012/03/01/jenkins-monitoring-external-jobs/
 
 
