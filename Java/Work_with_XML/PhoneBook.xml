@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AddressBook>
+    <Contact>
+        <LastName>test</LastName>
+        <FirstName>ztest</FirstName>
+        <Phone>
+            <phonenumber>5000</phonenumber>
+            <accountindex>1</accountindex>
+            <downloaded>0</downloaded>
+        </Phone>
+        <Groups>
+            <groupid>2</groupid>
+        </Groups>
+    </Contact>
+    <Contact>
+        <LastName>Doo</LastName>
+        <FirstName>Caca</FirstName>
+        <Phone>
+            <phonenumber>5555</phonenumber>
+            <accountindex>1</accountindex>
+            <downloaded>0</downloaded>
+        </Phone>
+        <Groups>
+            <groupid>2</groupid>
+        </Groups>
+    </Contact>
+                  
+</AddressBook>

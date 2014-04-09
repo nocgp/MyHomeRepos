@@ -1,0 +1,12 @@
+install :
+yum install java-1.6.0-openjdk;
+yum install jenkins ; (or winscp rpm package)
+chkconfig jenkins on;
+service jenkins start (java -jar /usr/lib/jenkins/jenkins.war -httpPort=Different_port);
+tail -f /var/log/jenkins/jenkins.log
+
+
+******************************************************
+
+
+
