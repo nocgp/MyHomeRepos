@@ -1,0 +1,44 @@
+---
+# This playbook deploys the whole application stack in this site.
+
+# Apply common configuration to all hosts
+- hosts: all
+
+  roles:
+  - common
+
+# Configure and deploy database servers.
+- hosts: dbservers
+
+  roles:
+  - db
+
+# Configure and deploy the web servers. Note that we include two roles
+# here, the 'base-apache' role which simply sets up Apache, and 'web'
+# which includes our example web application.
+
+- hosts: webservers
+
+  roles:
+  - base-apache
+  - web
+
+# Configure and deploy the load balancer(s).
+- hosts: lbservers
+
+  roles:
+  - haproxy
+
+# Configure and deploy the Nagios monitoring node(s).
+- hosts: monitoring
+
+  roles:
+  - base-apache
+  - nagios
+
+# Includes can also be used to import one playbook file into another
+# You can not conditionally path the location to an include file, like you can with ‘vars_files’. 
+#If you find yourself needing to do this, consider how you can restructure your playbook to be more class/role oriented
+- include: load_balancers.yml
+- include: webservers.yml
+- include: dbservers.yml

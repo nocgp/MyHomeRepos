@@ -1,0 +1,46 @@
+Lib: http://docs.ansible.com/playbooks_roles.html#task-include-files-and-encouraging-reuse
+Roles are a way to organize content: tasks, handlers, templates, and files, into reusable components. 
+You can say “these hosts are dbservers” or “these hosts are webservers”.
+Roles are great and you should use them every time you write playbooks.
+
+site.yml
+webservers.yml
+fooservers.yml
+roles/
+   common/
+     files/
+     templates/
+     tasks/
+     handlers/
+     vars/
+     meta/
+   webservers/
+     files/
+     templates/
+     tasks/
+     handlers/
+     vars/
+     meta/
+
+In a playbook, it would look like this:
+---
+- hosts: webservers
+  roles:
+     - common
+     - webservers
+
+If you want to define certain tasks to happen before AND after roles are applied, you can do this:
+---
+- hosts: webservers
+
+  pre_tasks:
+    - shell: echo 'hello'
+
+  roles:
+    - { role: some_role }
+
+  tasks:
+    - shell: echo 'still busy'
+
+  post_tasks:
+    - shell: echo 'goodbye'
