@@ -1,5 +1,5 @@
 - Group variables are variables that are applied to groups of servers 
-- They are stored in a directory called group_vars/all:
+- They are stored in a directory called group_vars/all (values that were universally true):
 			---
 			httpd_port: 80
 			ntpserver: 192.168.1.2

@@ -1,1 +1,8 @@
 http://docs.ansible.com/command_module.html
+
+
+Link: http://docs.ansible.com/synchronize_module.html
+# Synchronization of src on delegate host to dest on the current inventory host
+synchronize: >
+    src=some/relative/path dest=/some/absolute/path
+    delegate_to: delegate.host
