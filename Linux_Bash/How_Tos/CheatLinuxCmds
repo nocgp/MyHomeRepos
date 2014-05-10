@@ -1,0 +1,144 @@
+Path													What is
+/etc/filesystems										file systems that kernel currently supports
+/proc/filesystems										list the file system formats the kernel currently supports									
+/etc/fstab												are used when mounting the file system during startup, it does not contain information on the actual current mounts.
+/etc/mtab, /proc/mounts (kernel keeps)					file lists the file systems currently mounted and their mountpoints
+/boot/													This partition should be located at the start of the disk and should be at least 20 MB or 1 cylinder
+/opt/													create a separate partition for /opt/ (4 GB or more) 
+/usr/													is usually the biggest directory in the Linux installation
+/var/													put on a separate partition
+/srv/													When the machine acts as a web or ftp server, the data offered to users could be put on a separate partition
+/home/													Putting /home/ on a separate partition prevents users from using up all disk space
+/proc/													info on a running system, stored in the kernel memory space
+		/proc/cpuinfo									kernel memory, info about CPU
+		/proc/devices									View the devices used on your Linux system
+		/proc/ioports									View the I/O ports on your server. The I/O ports are the addresses of various hardware devices
+		/proc/interrupts
+		/proc/dmalvlv
+		/proc/bus/pci/devices
+		/proc/scsi/scsi
+		/proc/swaps
+/etc/sysconfig/network/									configuration files for network devices are located in the directory (ifcfg-eth-id-*)
+/etc/sysconfig/hardware/								current system configuration
+/etc/sysconfig/network/routes							all routes are saved in config file
+/etc/init.d/											for each diemon script is here
+/usr/sbin/ or /sbin										For many scripts, there is a symbolic link. If a link exists, you can start  rcservice start\stop\reload:
+	httpd - The daemon of the Apache2 web server
+	sshd - secure shell
+	syslog-ng	- Logs system messages in the directory /var/log/
+/etc/sysconfig/cron 									variables for the configuration of some scripts started by cron
+/etc/crontab											system jobs (you cannot remove lines added dduring installation)
+/etc/cron.hourly,cron.daily,cron.weekly,cron.monthly	jobs aru running on * basis
+/var/spool/cron/lastrun/								last time the jobs were run
+/root/bin/cron.daily.local 								it is advisable to write your own additions and modifications to
+/etc/cron.d/											Other files for system jobs
+/var/spool/cron/tabs/									The jobs of individual users
+		Field 					Range
+		Minutes 				0–59
+		Hours 					0–23
+		Day of the Month 		1–31
+		Month 					0–12
+		Weekday 				0–7
+/etc/at.allow 											(users entered here can define jobs)
+/etc/at.deny											(users who are not listed in this file can define jobs)
+/var/log/boot.messages 									kernel boot messages 
+/var/log/ 												track system-level events
+/etc/sysconfig/syslog (general parameters),/etc/syslog-ng/syslog-ng.conf (actually used by syslog-ng)	
+Facility: authpriv,cron,daemon,kern,lpr,mail,news,syslog,user,uucp,local0 – local7
+Priority: debug,info,notice,warning,err,crit,alert,emerg
+/etc/inittab											current runlevel
+/etc/yum.repos.d/										several repo files
+/etc/yum.config 										config file for yum (YellowDog Updater Modifier)
+/etc/apt/sources.lists 									Debian repos
+/etc/apt/sources.list.d 								add more sources in this directory
+ /etc/apt/apt.config 									config for debian apt
+ /etc/dpkg/dpkg.cfg 									another debian tool that can install, remove package
+ /etc/ssh/sshd_config									ssh daemon config file (/etc/init.d/sshd reload, then ssh-keygen to generate key pair, copy public key to a server ssh-copy-id -i)
+ /root/.bash_profile									update PATH permanently, source /root/.bash_profile
+/etc/sysconfig/iptables									file of brandmayer
+**************************************************************************
+Linux Device  							Partition Names:
+Primary master IDE hard disk 			/dev/hda
+Primary slave IDE hard disk 			/dev/hdb
+Secondary master IDE hard disk 			/dev/hdc
+Secondary slave IDE hard disk 			/dev/hdd
+First SCSI hard disk 					/dev/sda
+Second SCSI hard disk 					/dev/sdb
+
+**************************************************************************
+				Commands:
+fdisk - 		manage partitions
+partprobe - 	to get the kernel to use the new partition table
+df - 			info about HDs, what partitions are mounted, how much space they occupy
+du - 			info about space accupied by files or directories
+lsof - 			list of all open files currently
+fuser 			displays the PIDs of processes using the specified files or file systems (fuser -m /home)
+fsck			check and repair file systems
+hdparm			HD info
+lspci			info about all PCI buses
+who				who is currently logged in
+w 				who is currently on the machine and their processes
+finger			info about local and remote system users
+faillog 		failure counts and limits
+siga			system info in HTML
+sitar			system info in HTML in /tmp
+runlevel 		show current run level
+telinit 		to switch to another run level
+lsattr - 		list immutable attributes 
+iostat 			Report Central Processing Unit (CPU) statistics and input/out
+aptitude, dpkg
+swapon -s, vmstat, free -m, top  swap usage RedHat
+dumpe2fs 		view the location of all copies of the superblock in the file system
+e2fsck 			use one of the backup copies of the superblock
+tune2fs -  		the number of days or number of mounts a file system check is done	
+pvcreate , pvscan  - initialize partition for LVM
+vgcreate, vgexpand, vgreduce, vgremove	- create volume group
+lvcreate, lvscan, lvextend, lvreduce 	- create a logical volume 
+quotacheck - 	checks /etc/fstab (add usrquota,grpquota) and initialize quota system. after running this command files are created: /aquota.group, /aquota.user. to initialize service at boot time : insserv boot.quota
+/etc/init.d/boot.quota start, /sbin/quotaon filesystem, /sbin/quotaoff filesystem
+repquota (-aug ) -generate queota report
+getfacl, setfacl - 		get file ACLs \ set
+ip address show - network command line tool (ip link show)
+ifdown eth0, ifup  - reboot interface, add changes to file
+/sbin/hwup			current hardware info
+ip route show		show routing table
+jobs 				list of all jobs that were started from terminal
+ps, pstree, top, nice, renice - tools to view and prioritize processes
+/usr/sbin/cron  (crontab)		- daemon, starts other processes at the specific time
+at  				run a job one time only
+atq					Display defined jobs
+dmesg				the command used to view the current content of the kernel ring buffer
+/usr/bin/last 		(nformation about which user was logged in from where and for how long, info from the file /var/log/wtmp)
+/usr/bin/lastlog	which user was last logged in, from where, and for how long, /var/log/lastlog
+rpm2cpio			convert file to cpio archive, use cpio command to extract individual files or all the files in the package (rpm2cpio ../gcl-selinux*.rpm | cpio -idv)
+chkconfig service on\of add service at boot on startup
+
+mkfs - create fs ext2,ext3
+mkreiserfs - create Reiser File System
+mount - view the file systems currently mounted:
+	sync, async - input and output in a file system
+	atime, noatime - the access time of a file is updated in the inode
+	nodev, dev - nodev option prevents device files from being interpreted as such in the file system
+	nosuid, suid - nosuid option ensures that the suid and sgid bits in the file system are ignored
+	defaults. This option causes the default options rw, suid, dev, exec, auto, nouser, and async to be used
+	usrquota,grpquota - activate quotas for user or group on a file system
+
+
+**************************************************************************
+
+Usefull links:
+File system info: http://www-106.ibm.com/developerworks/library/l-fs.html
+Package manager info: 
+http://www.ibm.com/developerworks/library/l-lpic1-v3-102-5/	
+http://www.ibm.com/developerworks/linux/library/l-lpic1-v3-102-4/
+
+FIle permissions: http://www.ibm.com/developerworks/library/l-lpic1-v3-104-5/
+RUn levels: http://www.ibm.com/developerworks/library/l-lpic1-v3-101-3/
+
+LAMP stack: https://www.ibm.com/developerworks/community/blogs/InsideSystemStorage/entry/understanding_lamp_platform_for_web?lang=en
+Compilers:
+IBM® XL C/C++ , XL Fortran for Linu, GCC (“GNU Compiler Collection”), g++, and gfortran
+APache SSL : http://httpd.apache.org/docs/2.0/mod/mod_ssl.html#sslciphersuite
+
+
+http://jobs.dou.ua/companies/crytek-ukraine/vacancies/6184/?utm_source=jooble&utm_medium=cpc&utm_campaign=jooble
