@@ -1,0 +1,22 @@
+Show database instances on a server:
+    mysql>show databases;
+
+Show database name the default (current) database name:
+    mysql> select version(),user(),database();
+
+Connect to specific db instance: 
+    mysql> -u DBUSERNAME -h DBSERVER -p DBNAME
+
+------------------------------------------
+		    REPLICATION
+		On master:
+you need log name & position number:
+cat /path/to/BACKUP-DIR/TIME_STAMNP/xtrabackup_binlog_pos_innodb
+
+		Starting slave:
+start slave:  /etc/init.d/mysqld_XX  start
+mysql>change master to master_log_file='XXXXXXX', master_log_pos=XXXXXX; start slave;
+show slave status \G;
+
+It is possible to view the entire text of a running START SLAVE … statement, including any USER or PASSWORD values used, in the output of SHOW PROCESSLIST. This is also true for the text of a running CHANGE MASTER TO statement, including any values it employs for MASTER_USER or
+MASTER_PASSWORD.

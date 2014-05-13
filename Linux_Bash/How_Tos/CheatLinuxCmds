@@ -54,7 +54,7 @@ Priority: debug,info,notice,warning,err,crit,alert,emerg
  /etc/apt/apt.config 									config for debian apt
  /etc/dpkg/dpkg.cfg 									another debian tool that can install, remove package
  /etc/ssh/sshd_config									ssh daemon config file (/etc/init.d/sshd reload, then ssh-keygen to generate key pair, copy public key to a server ssh-copy-id -i)
- /root/.bash_profile									update PATH permanently, source /root/.bash_profile
+/root/.bash_profile									update PATH permanently, source /root/.bash_profile
 /etc/sysconfig/iptables									file of brandmayer
 **************************************************************************
 Linux Device  							Partition Names:
@@ -140,5 +140,4 @@ Compilers:
 IBM® XL C/C++ , XL Fortran for Linu, GCC (“GNU Compiler Collection”), g++, and gfortran
 APache SSL : http://httpd.apache.org/docs/2.0/mod/mod_ssl.html#sslciphersuite
 
-
-http://jobs.dou.ua/companies/crytek-ukraine/vacancies/6184/?utm_source=jooble&utm_medium=cpc&utm_campaign=jooble
+test

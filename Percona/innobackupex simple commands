@@ -1,0 +1,11 @@
+!! Please read links below first
+Create full db backup
+innobackupex --rsync /path/to/BACKUP-DIR/
+
+prepare full backup
+innobackupex --apply-log /path/to/BACKUP-DIR
+
+restore full backup
+innobackupex --copy-back /path/to/BACKUP-DIR
+
+Links: http://www.percona.com/doc/percona-xtrabackup/2.1/innobackupex/innobackupex_script.html

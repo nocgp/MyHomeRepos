@@ -1,0 +1,7 @@
+"ping" zabbix agent from Zabbix server:
+zabbix_get -s remote_ip -p remote_port -V
+
+
+Links:
+https://www.zabbix.com/documentation/1.8/manpages/zabbix_get
+https://www.zabbix.com/documentation/1.8/manpages/zabbix_agentd 
