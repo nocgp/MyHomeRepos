@@ -15,8 +15,20 @@ cat /path/to/BACKUP-DIR/TIME_STAMNP/xtrabackup_binlog_pos_innodb
 
 		Starting slave:
 start slave:  /etc/init.d/mysqld_XX  start
-mysql>change master to master_log_file='XXXXXXX', master_log_pos=XXXXXX; start slave;
+mysql>change master to master_log_file='XXXXXXX', master_log_pos=XXXXXX; 
+start slave;
 show slave status \G;
+
+(!in v5.6)if you see error message related to the masters database binary log file 
+in the status output, you can try to get more specific error:
+shell> mysqlbinlog --verify-binlog-checksum Log_file_name 
 
 It is possible to view the entire text of a running START SLAVE … statement, including any USER or PASSWORD values used, in the output of SHOW PROCESSLIST. This is also true for the text of a running CHANGE MASTER TO statement, including any values it employs for MASTER_USER or
 MASTER_PASSWORD.
+
+WEBINAR: http://www.percona.com/resources/mysql-videos/new-replication-features-mysql-56-benefits-limitations-and-challenges
+------------------------------------------------
+	    INDEXING
+Webinar:http://www.percona.com/resources/mysql-videos/mysql-indexing-best-practices-mysql-56
+
+DIFFERENT: http://www.percona.com/resources/mysql-videos
