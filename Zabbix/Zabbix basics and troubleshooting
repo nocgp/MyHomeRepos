@@ -1,6 +1,11 @@
 "ping" zabbix agent from Zabbix server:
 zabbix_get -s remote_ip -p remote_port -V
 
+zabbix agent v1.8 may reply status to te the server ZBX_NOTSUPPORTED.
+test new keyof the agent from the server by issueing:
+	shell>zabbix_get -s HOSTNAME -p 10050 -k "key name"
+if agent returns empty reply or is not available, you will get 
+zabbix_not supported message. 
 
 Links:
 https://www.zabbix.com/documentation/1.8/manpages/zabbix_get
