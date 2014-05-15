@@ -24,6 +24,18 @@ sudo -u postgres sh
 shell>psql -l  - show database instances;
 shell>psql instance_name - connect to a specific instance
 
+--------------------------------------
+	SECURITY
+Each database system contains a file named  /var/lib/pgsql/data/pg_hba.conf,
+in its PGDATA directory, which controls who can connect to each database.
+Every client accessing a database must be covered by one of the entries in
+pg_hba.conf. Otherwise all attempted connections from that client 
+will be rejected with a "User authentication failed" error message.
+
+PostgreSQL db server by default listen on localhost interface. change that:
+grep listen /var/lib/pgsql/data/postgresql.conf
+listen_addresses = '*'
+---------------------------------------
 
 Links: 
 http://www.postgresql.org/docs/8.1/static/backup.html
