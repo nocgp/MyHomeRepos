@@ -30,5 +30,12 @@ WEBINAR: http://www.percona.com/resources/mysql-videos/new-replication-features-
 ------------------------------------------------
 	    INDEXING
 Webinar:http://www.percona.com/resources/mysql-videos/mysql-indexing-best-practices-mysql-56
+------------------------------------------------
+	SECURITY
+Sometimes you want to see who can access what. To check global-level privileges you can try:
+
+    mysql> SELECT User,Host from mysql.user;
+
 
 DIFFERENT: http://www.percona.com/resources/mysql-videos
+http://www.anchor.com.au/hosting/dedicated/MySQL_administration
