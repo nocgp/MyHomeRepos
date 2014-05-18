@@ -1,0 +1,20 @@
+Run `ansible hostname -m setup`, but in particular:
+
+*`inventory_hostname|upper` - hostname in upper case
+*`inventory_hostname_short` 
+*`ansible_default_ipv4.gateway`
+*`ansible_eth0.ipv4.address`
+* `ansible_distribution`
+* `ansible_distribution_release`
+* `ansible_distribution_version`
+* `ansible_fqdn`
+* `ansible_hostname`
+* `ansible_os_family`
+* `ansible_pkg_mgr`
+* `ansible_default_ipv4.address`
+* `ansible_default_ipv6.address`
+
+
+More info:
+http://www-uxsup.csx.cam.ac.uk/~jw35/docs/ansible/ansible-summary.md
+https://gist.github.com/phgrau/4048239

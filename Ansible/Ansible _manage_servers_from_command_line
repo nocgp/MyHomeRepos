@@ -1,5 +1,9 @@
 manage servers from command line:
-ansible webservers -m service -a "name=httpd state=restarted"
+
+shell>ansible webservers -m service -a "name=httpd state=restarted"
+shell>ansible webservers -m ping
+shell>ansible webservers -m command -a "/sbin/reboot -t now"
 
 For more info:
+http://docs.ansible.com/modules.html#raw
 http://docs.ansible.com/intro_adhoc.html
