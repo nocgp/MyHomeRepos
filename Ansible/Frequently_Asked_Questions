@@ -1,2 +1,8 @@
 Frequently Asked Questions:
 http://docs.ansible.com/faq.html
+
+
+- name: "lineinfile with special characters"
+  lineinfile: dest=/home/file line="\$mylogin{'{{ pc_sname }}'} = 'root';{{'\n'}}$mypasswd{'{{ pc_sname }}'} = '{{ mysql_root_db_pass }}';{{'\n'}}"
+
+
