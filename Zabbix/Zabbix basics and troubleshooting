@@ -7,6 +7,14 @@ test new keyof the agent from the server by issueing:
 if agent returns empty reply or is not available, you will get 
 zabbix_not supported message. 
 
+Supported trigger functions:
+https://www.zabbix.com/documentation/2.2/manual/appendix/triggers/functions
+
+last(0) is always equal to last(#1)
+last(#3) - third most recent value (not three latest values)
+The function also supports a second optional time_shift parameter. For example,
+last(0,86400) will return the most recent value one day ago.
+-----------------------------------
 Links:
 https://www.zabbix.com/documentation/1.8/manpages/zabbix_get
 https://www.zabbix.com/documentation/1.8/manpages/zabbix_agentd 

@@ -31,6 +31,13 @@ WEBINAR: http://www.percona.com/resources/mysql-videos/new-replication-features-
 	    INDEXING
 Webinar:http://www.percona.com/resources/mysql-videos/mysql-indexing-best-practices-mysql-56
 ------------------------------------------------
+Privileges Necessary for MySQLDump
+
+mysql>grant select, show view, trigger, lock tables, reload, file on *.* to 'backup_user'@'localhost';
+flush privileges;
+
+Links:http://patrickv.info/wordpress/2013/04/privileges-necessary-for-mysqldump/
+------------------------------------------------
 	SECURITY
 Sometimes you want to see who can access what. To check global-level privileges you can try:
 
