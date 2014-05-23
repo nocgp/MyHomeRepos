@@ -1,0 +1,22 @@
+
+Requirenets for control machine:
+Python 2.6 installed
+OS: Red Hat, Debian, CentOS, OS X, any of the BSDs, and so on.
+
+
+For managed nodes:
+On the managed nodes, you only need Python 2.4 or later, but if you are running less than Python 2.5 on the remotes, 
+you will also need:  python-simplejson
+
+
+Install on control machine:
+sudo apt-get install python-setuptools
+sudo easy_install pip
+sudo pip install paramiko PyYAML jinja2 httplib2 markupsafe
+sudo apt-get install python-dev
+sudo pip install ansible
+
+Link: http://www.hashbangcode.com/blog/ansible-automation-engine
+
+Start with Ansible: 
+http://www.ansible.com/resources?utm_campaign=Tower+Trial+Download&utm_source=hs_automation&utm_medium=email&utm_content=11745256&_hsenc=p2ANqtz-8Ssno3mgrgpHTwnaFLsbdYQTABEpsYpcOfQfGveYAG0EtbtFlQOanQ0TIxpmEPx3LLFj9iR2YlZgp8AZbmTqEJBHx6TA&_hsmi=11745256

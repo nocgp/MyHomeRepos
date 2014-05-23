@@ -1,0 +1,6 @@
+Kickstart file is a simple text file, containing a list of items, each identified by a keyword. 
+You can create it by using the Kickstart Configurator application or by writing it from scratch.
+Using kickstart, a system administrator can create a single file containing the answers to all the questions that 
+would normally be asked during a typical installation.
+
+Links: http://fedoraproject.org/wiki/Anaconda/Kickstart#graphical
