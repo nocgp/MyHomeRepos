@@ -1,0 +1,35 @@
+#####
+# Script creates and adds graphs for host;
+# Script will add graph to Screen;
+# @ zabbixServer - zabbix server URL;
+# @ zabbixHost - host for which new graph will be created;
+# @ zabbixScreen - screen, which will be updated
+#!/usr/bin/python
+import sys, os
+from zabbix_api import ZabbixAPI
+
+# Provide all info
+zabbixServer = 'http://zabbix.gpserver.dk/'
+zabbixUser = 'iana'
+zabbixPass = 'n0n35hallPa$$n0n35hallPa$$'
+zabbixHost = 'nis1-htz14'
+zabbixScreen = 'Iana_Test'
+
+# Login to the Zabbix API
+zapi = ZabbixAPI(server = zabbixServer, path = "", log_level =
+
+gin(zabbixUser, zabbixPass)
+
+# Looking for 
+host = zapi.host.get({
+"output": ["hostid"],
+"selectitems": "extend",
+"filter": {"host": zabbixHost}
+})
+if host:
+    host_id = host[0]["hostid"]
+    host_name = host[0]["dns"]
+    print("Found host id %s  with name %s " % (host_id, host_name))
+else:
+    sys.exit("Host not found. please provide new one")
+
