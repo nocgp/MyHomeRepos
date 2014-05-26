@@ -1,0 +1,26 @@
+ck up your MySQL Database with Compress
+
+If your mysql database is very big, you might want to compress the output of mysqldump. Just use the mysql backup command below and pipe the output to gzip, then you will get the output as gzip file.
+
+$ mysqldump -u [uname] -p[pass] [dbname] | gzip -9 > [backupfile.sql.gz]
+If you want to extract the .gz file, use the command below:
+
+$ gunzip [backupfile.sql.gz]
+Restoring your MySQL Database
+
+Above we backup the Tutorials database into tut_backup.sql file. To re-create the Tutorials database you should follow two steps:
+
+Create an appropriately named database on the target machine
+Load the file using the mysql command:
+$ mysql -u [uname] -p[pass] [db_to_restore] < [backupfile.sql]
+Have a look how you can restore your tut_backup.sql file to the Tutorials database.
+
+$ mysql -u root -p Tutorials < tut_backup.sql
+To restore compressed backup files you can do the following:
+
+gunzip < [backupfile.sql.gz] | mysql -u [uname] -p[pass] [dbname]
+If you need to restore a database that already exists, you'll need to use mysqlimport command. The syntax for mysqlimport is as follows:
+
+mysqlimport -u [uname] -p[pass] [dbname] [backupfile.sql]
+
+Link: http://webcheatsheet.com/sql/mysql_backup_restore.php
