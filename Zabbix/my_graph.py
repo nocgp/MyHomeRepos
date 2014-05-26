@@ -9,10 +9,10 @@ import sys, os
 from zabbix_api import ZabbixAPI
 
 # Provide all info
-zabbixServer = 'http://zabbix.gpserver.dk/'
-zabbixUser = 'iana'
-zabbixPass = 'n0n35hallPa$$n0n35hallPa$$'
-zabbixHost = 'nis1-htz14'
+zabbixServer = ''
+zabbixUser = ''
+zabbixPass = ''
+zabbixHost = ''
 zabbixScreen = 'Iana_Test'
 
 # Login to the Zabbix API
