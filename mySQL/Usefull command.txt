@@ -1,19 +1,18 @@
-Show database instances on a server:
-    mysql>show databases;
+----------	DB instances	------------------------
+mysql>show databases;
 
 Show database name the default (current) database name:
-    mysql> select version(),user(),database();
+mysql> select version(),user(),database();
 
-Connect to specific db instance: 
-    mysql> -u DBUSERNAME -h DBSERVER -p DBNAME
+----------	Connection tricks	------------------
+mysql> -u DBUSERNAME -h DBSERVER -p DBNAME
 
-------------------------------------------
-		    REPLICATION
-		On master:
+----------	REPLICATION	----------------------------------
+On master:
 you need log name & position number:
 cat /path/to/BACKUP-DIR/TIME_STAMNP/xtrabackup_binlog_pos_innodb
 
-		Starting slave:
+Starting slave:
 start slave:  /etc/init.d/mysqld_XX  start
 mysql>change master to master_log_file='XXXXXXX', master_log_pos=XXXXXX; 
 start slave;
@@ -25,24 +24,42 @@ shell> mysqlbinlog --verify-binlog-checksum Log_file_name
 
 It is possible to view the entire text of a running START SLAVE … statement, including any USER or PASSWORD values used, in the output of SHOW PROCESSLIST. This is also true for the text of a running CHANGE MASTER TO statement, including any values it employs for MASTER_USER or
 MASTER_PASSWORD.
-
 WEBINAR: http://www.percona.com/resources/mysql-videos/new-replication-features-mysql-56-benefits-limitations-and-challenges
-------------------------------------------------
-	    INDEXING
-Webinar:http://www.percona.com/resources/mysql-videos/mysql-indexing-best-practices-mysql-56
-------------------------------------------------
-Privileges Necessary for MySQLDump
 
+-----------	INDEXING	---------------------------
+Webinar:http://www.percona.com/resources/mysql-videos/mysql-indexing-best-practices-mysql-56
+
+-----------	Privileges Necessary for MySQLDump	----------------------------
 mysql>grant select, show view, trigger, lock tables, reload, file on *.* to 'backup_user'@'localhost';
 flush privileges;
-
 Links:http://patrickv.info/wordpress/2013/04/privileges-necessary-for-mysqldump/
-------------------------------------------------
-	SECURITY
+
+-----------	SECURITY	------------------------
 Sometimes you want to see who can access what. To check global-level privileges you can try:
 
     mysql> SELECT User,Host from mysql.user;
 
+---------	Server Status Variables	-------------------------
+ SHOW [GLOBAL | SESSION] STATUS  \ SET ;
 
+---------	 SHOW STATUS Syntax	--------------------------
+SHOW [GLOBAL | SESSION] STATUS
+    [LIKE 'pattern' | WHERE expr]
+
+With the GLOBAL modifier, SHOW STATUS displays the status values for all connections to MySQL. 
+With SESSION, it displays the status values for the current connection. If no modifier is present, 
+the default is SESSION. LOCAL is a synonym for SESSION
+
+--------	SHOW CURRENT PROCESSES	------------------
+mysql> show full processlist;
+
+-------- 	RENAME TABLE	----------------
+RENAME TABLE tbl_name TO new_tbl_name
+
+--------	Change user password	-------------
+USE zabbix;
+UPDATE users SET passwd=md5('newpassword') WHERE alias='Admin';
+
+-------------------------------------------------------------------
 DIFFERENT: http://www.percona.com/resources/mysql-videos
 http://www.anchor.com.au/hosting/dedicated/MySQL_administration

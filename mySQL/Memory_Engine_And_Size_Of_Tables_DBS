@@ -1,0 +1,39 @@
+Reference: http://dev.mysql.com/doc/refman/5.5/en/memory-storage-engine.html
+
+The MEMORY storage engine (formerly known as HEAP) creates special-purpose tables with contents that are stored in memory.
+There are implicit MEMORY tables which are allocated for query execution, which size can be 
+controlled by tmp_table_size and which also only exist for duration of query execution so it is usually easy to catch them. 
+There are also explicit MEMORY tables you can create both as permanent and temporary. 
+There is a max_heap_table_size variable which allows you to limit size of MEMORY tables (the limit applies both to implicit 
+and explicit ones) but as there is no control of how many tables application can create it does not 
+really allows to restrict memory usage
+
+The maximum size of MEMORY tables is limited by the max_heap_table_size system variable, which has a default value of 16MB. 
+To enforce different size limits for MEMORY tables, change the value of this variable. 
+The value in effect for CREATE TABLE, or a subsequent ALTER TABLE or TRUNCATE TABLE, is the value used for the life of the
+ table. A server restart also sets the maximum size of existing MEMORY tables to the global max_heap_table_size value. 
+You can set the size for individual tables as described later in this section.
+
+
+
+mysql> select sum(data_length+index_length) from information_schema.tables where engine='memory';
+
+You can use this query to show the size of a table:
+SELECT table_name AS "Table", 
+round(((data_length + index_length) / 1024 / 1024), 2) "Size in MB" 
+FROM information_schema.TABLES 
+WHERE table_schema = "$DB_NAME"
+ AND table_name = "$TABLE_NAME";
+
+or this query to list the size of every table in the database, largest first:
+SELECT table_name AS "Tables", 
+round(((data_length + index_length) / 1024 / 1024), 2) "Size in MB" 
+FROM information_schema.TABLES 
+WHERE table_schema = "$DB_NAME"
+ORDER BY (data_length + index_length) DESC;
+
+Additional You can get size of the mysql databases as following.
+SELECT table_schema "DB Name", 
+Round(Sum(data_length + index_length) / 1024 / 1024, 1) "DB Size in MB" 
+FROM   information_schema.tables 
+GROUP  BY table_schema; 

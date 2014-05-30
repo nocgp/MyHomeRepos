@@ -1,0 +1,42 @@
+Link: http://www.w3schools.com/sql/sql_foreignkey.asp
+
+A FOREIGN KEY in one table points to a PRIMARY KEY in another table.
+The FOREIGN KEY constraint is used to prevent actions that would destroy links between tables.
+The FOREIGN KEY constraint also prevents invalid data from being inserted into the foreign key column, 
+because it has to be one of the values contained in the table it points to.
+
+There are three possible values for the "Key" attribute:
+1.PRI
+2.UNI
+3.MUL
+The meaning of PRI and UNI are quite clear:
+PRI=> primary key
+UNI=> unique key
+MUL => The name comes from "multiple" because multiple occurences of the same value are allowed.
+"If Key is MUL, the column is the first column of a nonunique index in which multiple occurrences of a 
+given value are permitted within the column."
+
+-----------------------------------------------------------------------------------------------------------
+First find out table definition:
+	mysql> show create table;
+
+will return something like:
+******
+ PRIMARY KEY (`hostid`),
+  KEY `hosts_1` (`host`),
+  KEY `hosts_2` (`status`),
+  KEY `hosts_3` (`proxy_hostid`),
+  KEY `hosts_4` (`name`),
+  KEY `hosts_5` (`maintenanceid`),
+  KEY `c_hosts_3` (`templateid`),
+  CONSTRAINT `c_hosts_1` FOREIGN KEY (`proxy_hostid`) REFERENCES `hosts` (`hostid`),
+  CONSTRAINT `c_hosts_2` FOREIGN KEY (`maintenanceid`) REFERENCES `maintenances` (`maintenanceid`),
+  CONSTRAINT `c_hosts_3` FOREIGN KEY (`templateid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE
+) 
+******
+Use one of these queries to get foreign key names -
+mysql>SELECT * FROM  information_schema.KEY_COLUMN_USAGE 
+WHERE constraint_schema = <'db_name'> AND table_name = <'table_name'> AND referenced_table_name IS NOT NULL;
+
+DROP FOREIGN KEY:
+mysql> ALTER TABLE Orders DROP FOREIGN KEY fk_PerOrders;

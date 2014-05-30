@@ -1,0 +1,8 @@
+# grep -n 'Table structure' dump.sql
+19:-- Table structure for table `t1`
+40:-- Table structure for table `t2`
+61:-- Table structure for table `t3`
+Now just use the line numbers to extract the table with sed:
+
+sed -n '40,61 p' dump.sql > t2.sql
+That's it, you have everything you need with no cleanup of mysql grants to do afterward.

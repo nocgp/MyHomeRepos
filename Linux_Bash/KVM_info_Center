@@ -1,0 +1,23 @@
+INFO CENTER: http://pic.dhe.ibm.com/infocenter/lnxinfo/v3r0m0/index.jsp?topic=%2Fliaat%2Fliaatsecstorotherdir.htm
+
+
+Warning: 
+libvirtd caches the domain information. If you change the on-disk domain.xml file, you must force libvirtd to 
+re-read this file. To do this without restarting libvirtd, stop the domain in question and then execute:
+shell> virsh define /etc/libvirt/qemu/vader.xml 
+
+You can verify your changes have taken effect with the command:
+shell> virsh dumpxml vader
+
+To list all currently-running domains:
+shell> virsh list
+
+To start/stop/reboot a domain:
+shell> virsh start vader
+shell> virsh shutdown vader
+shell> virsh reboot vader
+
+To hard-stop a domain (no elegant shutdown):
+shell> virsh destroy vader
+
+
