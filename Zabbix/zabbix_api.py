@@ -1,3 +1,4 @@
+# in order to use this library : python zabbix_api install
 # This is a port of the ruby zabbix api found here:
 # http://trac.red-tux.net/browser/ruby/api/zbx_api.rb
 #

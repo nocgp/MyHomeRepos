@@ -1,0 +1,55 @@
+Linnks:
+http://www.net-snmp.org/docs/mibs/interfaces.html
+http://docs.fedoraproject.org/en-US/Fedora/16/html/System_Administrators_Guide/sect-System_Monitoring_Tools-Net-SNMP-Retrieving.html
+
+------------------------------------------------------------------------------------------------
+IF-MIB::ifTable provides an SNMP table with an entry for each interface on the system, the configuration of the interface, 
+and various packet counters for the interface. The following example shows the first few columns of ifTable on a system 
+with two physical network interfaces:
+shell> snmptable -Cb localhost IF-MIB::ifTable
+SNMP table: IF-MIB::ifTable
+
+ Index Descr             Type   Mtu    Speed      PhysAddress AdminStatus
+     1    lo softwareLoopback 16436 10000000                           up
+     2  eth0   ethernetCsmacd  1500        0 52:54:0:c7:69:58          up
+     3  eth1   ethernetCsmacd  1500        0 52:54:0:a7:a3:24        down
+
+************
+!!!!!!!! If you get the reply: Timeout: No Response from 192.168.1.20
+You should check your SNMP Community and/or the IP address of the AirOS device.
+************
+
+Network traffic is available under the OIDs IF-MIB::ifOutOctets and IF-MIB::ifInOctets. 
+The following SNMP queries will retrieve network traffic for each of the interfaces on this system:
+shell> snmpwalk localhost IF-MIB::ifDescr
+IF-MIB::ifDescr.1 = STRING: lo
+IF-MIB::ifDescr.2 = STRING: eth0
+IF-MIB::ifDescr.3 = STRING: eth1
+shell> snmpwalk localhost IF-MIB::ifOutOctets
+IF-MIB::ifOutOctets.1 = Counter32: 10060699
+IF-MIB::ifOutOctets.2 = Counter32: 650
+IF-MIB::ifOutOctets.3 = Counter32: 0
+shell> snmpwalk localhost IF-MIB::ifInOctets
+IF-MIB::ifInOctets.1 = Counter32: 10060699
+IF-MIB::ifInOctets.2 = Counter32: 78650
+IF-MIB::ifInOctets.3 = Counter32: 0
+
+After finding the index of wireless interface (ath0):
+shell> snmpwalk -v1 -c ubnt2 192.168.1.20 ifDescr | grep ath0 | head -c 17 | tail -c 1 
+
+Other useful tools from Net-SNMP includes snmpget to get a specific variable, snmpwalk to discover available variables 
+(with GETNEXT operation) from an OID and snmptranslate to translate between object names and OID.
+$ snmpget localhost IF-MIB::ifDescr.2
+IF-MIB::ifDescr.2 = STRING: eth0
+$ snmpwalk localhost IF-MIB::ifDescr
+IF-MIB::ifDescr.1 = STRING: lo
+IF-MIB::ifDescr.2 = STRING: eth0
+IF-MIB::ifDescr.3 = STRING: eth1
+IF-MIB::ifDescr.4 = STRING: br0
+$ snmpwalk -On public localhost .1.3.6.1.2.1.2.2.1.2
+.1.3.6.1.2.1.2.2.1.2.1 = STRING: lo
+.1.3.6.1.2.1.2.2.1.2.2 = STRING: eth0
+.1.3.6.1.2.1.2.2.1.2.3 = STRING: eth1
+.1.3.6.1.2.1.2.2.1.2.4 = STRING: br0
+$ snmptranslate -On IF-MIB::ifDescr.3
+.1.3.6.1.2.1.2.2.1.2.3
