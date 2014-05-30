@@ -1,0 +1,108 @@
+-------------- General info regarding mysql db upgrade \ migration --------------------
+Before exporting\mysqldump data from old db Stop Zabbix server to make sure that no new data is inserted into database.
+Make sure that you have a backup of your database.
+Zabbix server will automatically upgrade the database only from Zabbix 2.0.x to 2.2.
+
+For upgrading mysql db from v1.8 to 2.0:
+DB schema changed in zabbix v2.0. You have few options:
+Restore entire database with:
+ - mysqldump old_zabbix_db > zabbixv1_8.sql. Restore dump on zabbix 2.0 server, run patch sql script:
+   MySQL: upgrades/dbpatches/2.0/mysql/patch.sql
+   https://www.zabbix.com/documentation/2.0/manual/installation/upgrade ;
+ - configure master \ slave, wait for replication to finish, and then broke replication;
+ - Remount \ Mount HDD with zabbix database, change configuration in /etc/my.conf 
+
+It is also possible migrate only single tables:
+Simplest way to do it with API.
+
+Go to API manual "Create" your object:
+https://www.zabbix.com/documentation/ => Zabbix v2.2 => Zabbix manual => API => Method referance =>
+---------------------------------------------------------------------------------------
+1).
+Zabbix download site : http://www.zabbix.com/download.php
+Check and install zabbix2.0 EPEL repo :
+yum install http://epel.mirror.nucleus.be/6/x86_64/epel-release-6-8.noarch.rpm
+zabbix 2.2 EPEL repo: http://repo.zabbix.com/zabbix/
+
+Install packages :
+yum install php  php-ldap nmap httpd policycoreutils-python net-snmp net-snmp-utils
+rpm --import http://repo.zabbixzone.com/centos/RPM-GPG-KEY-zabbixzone
+yum groupinstall "MySQL Database Client" "MySQL Database Server"
+yum install mysql-server zabbix-server-mysql zabbix-web-mysql zabbix-agent zabbix-java-gateway
+
+Start next time automatic on boot:
+chkconfig httpd on
+chkconfig mysqld on
+chkconfig zabbix-server on
+chkconfig zabbix-agent on
+
+Start the mysql\httpd services now:
+service httpd start; service mysqld start
+
+Make mysql secure:
+/usr/bin/mysql_secure_installation
+
+2).
+Configure mysql with user zabbix and database zabbix:
+mysql -uroot -p
+mysql> create database zabbix character set utf8;
+mysql> grant all privileges on zabbix.* to zabbix@localhost identified by 'password';
+
+Import zabbix database schemas:
+mysql -uzabbix -p zabbix < /usr/share/zabbix-mysql/schema.sql
+mysql -uzabbix -p zabbix < /usr/share/zabbix-mysql/images.sql
+mysql -uzabbix -p zabbix < /usr/share/zabbix-mysql/data.sql
+
+3).
+Installing Zabbix web interface:
+Zabbix frontend is written in PHP, so to run it a PHP supported webserver is needed. Installation is done by simply copying the 
+PHP files from frontends/php to the webserver HTML documents directory.
+Common locations of HTML documents directories for Apache web servers include:
+/usr/local/apache2/htdocs (default directory when installing Apache from source)
+/srv/www/htdocs (OpenSUSE, SLES)
+/var/www/html (Fedora, RHEL, CentOS)
+/var/www (Debian, Ubuntu)
+
+To create a subdirectory and copy Zabbix frontend files into it, execute the following commands, replacing the actual directory:
+mkdir <htdocs>/zabbix
+cd frontends/php
+cp -a . <htdocs>/zabbix
+
+
+----------	Configuration files: -------------------
+**	Edit Zabbix_server configuration: 
+vi /etc/zabbix/zabbix_server.conf
+DBHost=localhost
+DBName=zabbix
+DBUser=zabbix
+DBPassword=(your zabbix password)
+ListenIP=0.0.0.0
+ListenPort=10051
+
+**	Zabbix frontend conf files:
+Zabbix-specific php file: /etc/zabbix/zabbix.conf.php
+(cp /usr/share/doc/zabbix-frontend-php/examples/zabbix.conf.php.example /etc/zabbix/zabbix.conf.php)
+/etc/zabbix/dbconfig.php
+
+**	httpd configuration
+/etc/httpd/conf/httpd.conf:ServerName  # IP or DNS
+
+**	PHP configuration files:
+/etc/php5/apache2/php.ini
+post_max_size = 16M
+max_execution_time = 300
+max_input_time = 300
+date.timezone = UTC
+---------------------------------------------------------
+
+Firewall rules:  netstat -ntpl | grep zab
+
+
+Start / restart the services.
+In a case of any errors start to look at :
+Zabbix logs: /var/log/zabbix/zabbix_server.log
+Httpd logs somewhere on: /var/log/**
+
+
+More links:
+https://www.zabbix.com/documentation/2.2/manual/installation/install#installing_zabbix_web_interface

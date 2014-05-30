@@ -1,0 +1,26 @@
+Reference: https://www.zabbix.com/documentation/2.0/manual/appendix/compatibility
+
+		11 Version compatibility
+
+********	Supported agents
+
+Older agents from Zabbix 1.0, Zabbix 1.1.x, Zabbix 1.4.x, Zabbix 1.6.x and Zabbix 1.8.x can still be used with Zabbix 2.0. It does not require any configuration changes on agent side.
+However, to take full advantage of new and improved items, improved performance and reduced memory usage, use the latest 2.0 agent.
+
+******* 	Supported Zabbix proxies
+
+Only Zabbix 2.0 proxies may be used with Zabbix server. Zabbix 1.6 and 1.8 proxies are not supported with Zabbix 2.0 server.
+Zabbix 2.0 proxies may only be used with Zabbix 2.0 server. They will not work with 1.8 or older Zabbix server.
+Supported distributed monitoring nodes
+All distributed monitoring nodes must be of the same major version. 1.8 nodes are not supported together with 2.0 nodes.
+
+******* 	Supported XML files
+
+XML files, exported with 1.8, are supported for import in Zabbix 2.0.
+
+Notes:
+In Zabbix 1.8 XML export format, trigger dependencies are stored by name only. 
+If there are several triggers with the same name (for example, having different severities and expressions) 
+that have a dependency defined between them, it is not possible to import them. 
+Such dependencies must be manually removed from the XML file and re-added after import.
+
