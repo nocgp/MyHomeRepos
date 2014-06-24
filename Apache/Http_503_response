@@ -1,0 +1,41 @@
+Reference: http://maanasroyy.wordpress.com/2012/05/05/apache-performance-tuning-keepalive-to-remove-latency/
+
+varnish returns error:
+<  11 TxHeader     c X-Varnish: 1036582537
+   11 TxHeader     c Age: 0
+   11 TxHeader     c Via: 1.1 varnish
+   11 TxHeader     c Connection: close
+   11 Debug        c Write error, retval = -1, len = 676, errno = Connection reset by peer
+ />
+This means that the clients close the TCP connection before receiving the entire contents.
+
+Test your domain using:
+ time wget --recursive --no-clobber --page-requisites --html-extension --convert-links --restrict-file-names=windows --domains www.example.com --no-parent www.example.com
+command will retrieve pages recursive. In ~1min you may get "503 Service Unavailable" error.
+Have a look at httpd log file, error log. 
+
+Persisten session derictives may be a bottelneck in this case:
+
+    KeepAlive: Switches KeepAlive on or off. Put in “KeepAlive on” to turn it on and “KeepAlive off” to turn it off.
+    MaxKeepAliveRequests: The maximum number of requests a single persistent connection will service. A number between 50 and 75 would be plenty.
+    KeepAliveTimeout: How long should the server wait for new requests from connected clients. The default is 15 seconds which is way too high. Set it to between 1 and 5 seconds to avoid having processes wasting RAM while waiting for requests.
+
+MaxClients: MaxClients is the maximum number of child processes launched by Apache to service incoming requests. With KeepAlive enabled you have will have a higher number of child processes active during peak times. So your MaxClients value may have to be increased.
+MaxRequestsPerChild: The number of requests a child process will serve before it is killed and recreated. This is done to prevent memory leaks. When KeepAlive is turned on each persistent connection will count as one request. That effectively turns MaxRequestsPerChild into a maximum connections per child value. As a result you can set a lower MaxRequestsPerChild value if you allow KeepAlive. If you don’t allow KeepAlive you should increase the MaxRequestsPerChild value to prevent excessive CPU usage
+
+
+WGET options above:
+--no-clobber - If a file is downloaded more than once in the same directory, the local file will be clobbered , or overwritten, upon repeated download
+--recursive - Turn on recursive retrieving.
+--page-requisites - his option causes Wget to download all the files that are necessary to properly display a given html page
+--convert-links - After the download is complete, convert the links in the document to make them suitable for local viewing
+--html-extension -
+--restrict-file-names - 
+--no-parent - Do not ever ascend to the parent directory when retrieving recursivel(disallowing retrieval
+of the links that refer to the hierarchy above than the beginning directory)
+
+Recursive retrieval of http and html / css content is breadth-first . This means that Wget  first downloads the requested document, then the documents linked from that document, 
+then the documents linked by them, and so on. In other words, Wget first downloads the documents at depth 1, then those at depth 2, 
+and so on until the specified maximum depth. The default maximum depth is five layers.
+
+

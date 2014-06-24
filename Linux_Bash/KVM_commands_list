@@ -1,0 +1,48 @@
+The following tables provide a quick reference for all virsh command line options.
+Command	 Description
+help	 Prints basic help information.
+list	 Lists all guests.
+dumpxml	 Outputs the XML configuration file for the guest.
+create	 Creates a guest from an XML configuration file and starts the new guest.
+start	 Starts an inactive guest.
+destroy	 Forces a guest to stop.
+define	 Outputs an XML configuration file for a guest.
+domid	 Displays the guest's ID.
+domuuid	 Displays the guest's UUID.
+dominfo	 Displays guest information.
+domname	 Displays the guest's name.
+domstate	 Displays the state of a guest.
+quit	 Quits the interactive terminal.
+reboot	 Reboots a guest.
+restore	 Restores a previously saved guest stored in a file.
+resume	 Resumes a paused guest.
+save	 Save the present state of a guest to a file.
+shutdown	 Gracefully shuts down a guest.
+suspend	 Pauses a guest.
+undefine	 Deletes all files associated with a guest.
+migrate	 Migrates a guest to another host.
+Table 28.1. Guest management commands
+
+The following virsh command options manage guest and hypervisor resources:
+Command	 Description
+setmem	 Sets the allocated memory for a guest.
+setmaxmem	 Sets maximum memory limit for the hypervisor.
+setvcpus	 Changes number of virtual CPUs assigned to a guest.
+vcpuinfo	 Displays virtual CPU information about a guest.
+vcpupin	 Controls the virtual CPU affinity of a guest.
+domblkstat	 Displays block device statistics for a running guest.
+domifstat	 Displays network interface statistics for a running guest.
+attach-device	 Attach a device to a guest, using a device definition in an XML file.
+attach-disk	 Attaches a new disk device to a guest.
+attach-interface	 Attaches a new network interface to a guest.
+detach-device	 Detach a device from a guest, takes the same kind of XML descriptions as command attach-device.
+detach-disk	 Detach a disk device from a guest.
+detach-interface	 Detach a network interface from a guest.
+Table 28.2. Resource management options
+
+These are miscellaneous virsh options:
+Command	 Description
+version	 Displays the version of virsh
+nodeinfo	 Outputs information about the hypervisor
+Table 28.3. Miscellaneous options
+

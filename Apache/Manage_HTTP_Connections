@@ -1,0 +1,11 @@
+For More Information:
+
+http://www.ietf.org/rfc/rfc2616.txt
+    RFC 2616, “Hypertext Transfer Protocol—HTTP/1.1
+
+http://www.ietf.org/rfc/rfc2068.txt
+    RFC 2068 is the 1997 version of the HTTP/1.1 protocol
+
+
+Any HTTP client, server, or proxy can close a TCP transport connection at any time. The connections normally are closed at the end of a message,[18] but during error conditions, the connection may be closed in the middle of a header line or in other strange places.
+This situation is common with pipelined persistent connections. HTTP applications are free to close persistent connections after any period of time. For example, after a persistent connection has been idle for a while, a server may decide to shut it down. 
