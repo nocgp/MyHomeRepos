@@ -1,0 +1,29 @@
+	Install SNMP bulder for Zabbix 2.2
+Patch does not work for zabbix 2.2 so I pathced zabbix manually.
+
+Update your OS and install required packages:
+yum update; yum install php-pecl-json net-snmp-utils net-snmp-devel;
+test snmp on server: snmpwalk -v 1 -c public -O e 127.0.0.1; change community from public.
+
+Patch MIB themes and images:
+1) download atimonin-snmpbuilder-8b843e2.tar.gz to zabbix server
+2) tar xzvf atimonin-snmpbuilder-8b843e2.tar.gz; cd atimonin-snmpbuilder-8b843e2;
+3) tar xzvf snmpbuilder-2.0_imgs.tar.gz; cp -r js/jquery/themes /usr/share/zabbix/js/jquery/   (overwrite -y)
+
+if skip this step, you will get error from apache, like:
+ ""GET /zabbix/js/jquery/themes/mib/globe.gif HTTP/1.1" 404 1309 "http://192.168.2.60/zabbix/snmp_builder.php""
+MIB tree will not be visible on the left.
+
+Patch zabbix files:
+1) cd /usr/share/zabbix/;
+2) edit files as described in DIFF
+3) additionally: 
+change in /usr/share/zabbix/js/snmp_builder/snmp_builder.js from - 
+	string json = itemlist.data.toJSON();  
+to - 
+	string json = JSON.stringify(itemlist.data, null);
+
+Retsart zabbix, apache.
+Done!
+
+
