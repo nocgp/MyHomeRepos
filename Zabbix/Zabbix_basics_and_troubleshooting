@@ -1,0 +1,32 @@
+"ping" zabbix agent from Zabbix server:
+zabbix_get -s remote_ip -p remote_port -V
+
+zabbix agent v1.8 may reply status to te the server ZBX_NOTSUPPORTED.
+test new keyof the agent from the server by issueing:
+	shell>zabbix_get -s HOSTNAME -p 10050 -k "key name"
+if agent returns empty reply or is not available, you will get 
+zabbix_not supported message. 
+
+you can go to the agent host and run the following command: zabbix_agentd -t system.cpu.load[]   (where the latest is your key)
+if zabbix agent returns something like "[m|ZBX_NOTSUPPORTED]",  goi to the link below in order to verify if key is supported by igent 
+
+Supported agent item keys:
+https://www.zabbix.com/documentation/2.0/manual/config/items/itemtypes/zabbix_agent
+
+last(0) is always equal to last(#1)
+last(#3) - third most recent value (not three latest values)
+The function also supports a second optional time_shift parameter. For example,
+last(0,86400) will return the most recent value one day ago.
+
+CPU load calculates: 
+shell> while true; do cat /proc/loadavg | awk '{print $1" "$2" "$3}'; sleep 60; done
+while true; do echo -e "$(zabbix_get -s test -k 'system.cpu.load[all,avg1]') $(zabbix_get -s test -k 'system.cpu.load[all,avg5]') $(zabbix_get -s test -k 'system.cpu.load[all,avg15]')"; sleep 60; done
+
+
+Too many events on zabbix dashboard
+you can delete some after the root of the problem is resolved:
+mysql> delete  from alerts where clock > UNIX_TIMESTAMP('2014-08-06 00:00:00');
+-----------------------------------
+Links:
+https://www.zabbix.com/documentation/1.8/manpages/zabbix_get
+https://www.zabbix.com/documentation/1.8/manpages/zabbix_agentd 

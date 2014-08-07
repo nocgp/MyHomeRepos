@@ -14,6 +14,12 @@ if skip this step, you will get error from apache, like:
  ""GET /zabbix/js/jquery/themes/mib/globe.gif HTTP/1.1" 404 1309 "http://192.168.2.60/zabbix/snmp_builder.php""
 MIB tree will not be visible on the left.
 
+The following files have to be fixed to get this to work:
+/include/menu.inc.php
+/include/page_header.php
+/snmp_builder.php
+/jsLoader.php
+
 Patch zabbix files:
 1) cd /usr/share/zabbix/;
 2) edit files as described in DIFF
@@ -21,7 +27,14 @@ Patch zabbix files:
 change in /usr/share/zabbix/js/snmp_builder/snmp_builder.js from - 
 	string json = itemlist.data.toJSON();  
 to - 
-	string json = JSON.stringify(itemlist.data, null);
+	json = JSON.stringify(itemlist.data, null);
+
+To fix the "Import MIB" just takes a few changes. 
+Go to /include/views/administration.snmp_builder.php
+Change line 36 from:
+$mibForm->addItem(makeFormFooter(array(new CSubmit('import', _('Import'))), new CButtonCancel()));
+to:
+$mibForm->addItem(makeFormFooter(new CSubmit('import', _('Import')),new CButtonCancel()));
 
 Retsart zabbix, apache.
 Done!

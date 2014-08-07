@@ -2,6 +2,22 @@ Linnks:
 http://www.net-snmp.org/docs/mibs/interfaces.html
 http://docs.fedoraproject.org/en-US/Fedora/16/html/System_Administrators_Guide/sect-System_Monitoring_Tools-Net-SNMP-Retrieving.html
 
+----------------------------------------------------------------------------
+The following easy steps will install snmp daemon on your CentOS/RHEL server :
+yum install net-snmp net-snmp-utils
+
+now snmpd simple configuration ( change SECRET_NAME to a complex string ) :
+echo rocommunity SECRET_NAME > /etc/snmp/snmpd.conf
+
+start snmpd :
+service snmpd restart
+
+also make sure it starts on boot :
+chkconfig snmpd on
+
+last step to check snmpd is working ( change SECRET_NAME to the string you have chose before ) :
+snmpwalk -v 1 -c SECRET_NAME -O e 127.0.0.1
+
 ------------------------------------------------------------------------------------------------
 IF-MIB::ifTable provides an SNMP table with an entry for each interface on the system, the configuration of the interface, 
 and various packet counters for the interface. The following example shows the first few columns of ifTable on a system 
