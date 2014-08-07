@@ -1,0 +1,20 @@
+Install:
+adduser -r -m jetty
+chown -R jetty:jetty /srv/jetty
+cd /etc/init.d
+ln -s /srv/jetty/bin/jetty.sh jetty
+chkconfig --add jetty
+chkconfig --level 345 jetty on
+
+
+Configure:
+/etc/default/jetty
+
+AVA_HOME=/usr/java/default <--- your location to java 
+JAVA=$JAVA_HOME/bin/java 
+JAVA_OPTIONS=" -server -Xms256m -Xmx1024m -XX:+DisableExplicitGC " 
+JETTY_HOME=/srv/jetty 
+JETTY_USER=jetty 
+JETTY_PORT=8080 <-- port number change if you need to 
+JETTY_HOST=0.0.0.0 <--- If you don't set this to 0.0.0.0, jetty only listen on localhost 
+JETTY_LOGS=/srv/jetty/logs/

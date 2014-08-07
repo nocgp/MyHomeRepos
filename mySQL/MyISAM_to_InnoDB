@@ -1,0 +1,7 @@
+echo "SELECT concat('ALTER TABLE `',TABLE_NAME,'` ENGINE=InnoDB;')
+FROM Information_schema.TABLES 
+WHERE ENGINE != 'InnoDB' AND TABLE_TYPE='BASE TABLE' 
+AND TABLE_SCHEMA='name-of-database'" | mysql > convert.sql
+
+# remove first line from the file
+mysql name-of-database < convert.sql

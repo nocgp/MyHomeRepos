@@ -1,0 +1,14 @@
+if you have a "skeleton" server, the best way to "clone" your system is:
+
+	Tar to remote server_name :
+tar zcvpf - / --exclude=/boot --exclude=/sys --exclude=/dev --exclude=/tmp --exclude=/proc --exclude=/media --exclude=/etc/fstab --exclude=/boot/grub/grub.conf | ssh user@server_name \
+"cat > /mnt/backup/folder_where_put_backup_on_target/cislave.tar.gz"
+	Restore from backup tar 
+zxvpf ./cislave.tar.gz  -C /
+
+
+If new server will have the same partitions, the best ways is to clone disk:
+clone disk to remote server:
+dd bs=32M if=/dev/vg_node3/disk_name | gzip | ssh user@server 'dd of=/data/backup.img.gz'
+restore:
+gzip -dc /data/backup.img.gz | dd of=/dev/vg0/disk_name

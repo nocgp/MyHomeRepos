@@ -1,0 +1,2 @@
+to upgrade specific instance:
+mysql_upgrade -u root -pPasswodr -S /var/lib/mysql23/mysql.sock
