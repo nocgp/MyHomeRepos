@@ -1,0 +1,14 @@
+sudo apt-get install iptables
+
+nano /etc/iptables.up.rules
+
+We can now apply these rules to the server like so:-
+shell>iptables-restore < /etc/iptables.test.rules
+
+permantently save the rules
+shell> permantently save the rules
+
+
+ad these rules to upstart:
+nano /etc/network/interfaces
+pre-up iptables-restore < /etc/iptables.up.rules
