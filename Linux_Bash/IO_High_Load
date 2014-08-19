@@ -1,0 +1,235 @@
+Reference: http://sysadminupdates.com/blog/2011/06/16/linux-high-io-load-what-to-check-for-trouble-shooting/
+
+When you look at the CPU activity of your computer, one of the parameters is the iowait. 
+This value shows how much time your CPU wastes while it is waiting for I/O operations for complete. 
+These include disk read/write operations, network, IPC, etc. Is this behavior a problem and, if so,
+ what causes it and how to fix it? One one of the popular Unix-related forums one “genius” wrote:
+
+The iowait “problem” is funny. It’s like when people complain that Linux is “using all my memory”. 
+Yeah, no shit. You should be upset if you are copying files and your computer is /not/ in 100% iowait.
+
+In reality, 100% iowait indicates that there is a problem and in most cases – a big problem that may even lead to data loss.
+Essentially, there is a bottleneck somewhere in the system. Maybe one of your disks is getting ready to die; 
+or, perhaps, the NIC firmware is having problems with the latest kernel upgrade you installed. 
+The troubleshooting process starts with the potentially more serious possibility: bad disk.
+
+Take a quick look at /etc/messages, /etc/dmesg, /etc/boot.log and any other system log files. 
+You are looking for disk I/O errors, failed read/write operations, bad sectors – anything that indicates a hardware problem with a disk. 
+If you don’t find anything, look for IRQ and disk controller errors. Also look for memory errors and kernel panics. 
+The three most likely culprits of high iowait are: bad disk, faulty memory and network problems.
+
+If you still see nothing relevant, it is time to test your system. If possible, kick all the users off the box, 
+shut down Web server, database and any other user application. Log in via command line and stop XDM.
+
+Open three shell windows: run “top” in one, “iostat -x 1? in the other and “find /etc -type f -print” in the third. 
+Make sure you can see all three windows at the same time. This is a simple test that should generate some I/O activity on the system disk. 
+Repeat this process for other disks. If you see iowait hovering near 100%, chance are you have a problem but we don’t know what it is yet. 
+However, now we do know that network is probably not the cause.
+
+deathstar:/ # iostat -x 1
+Linux 2.6.5-7.201-default (deathstar) 12/20/08
+
+avg-cpu: %user %nice %sys %iowait %idle
+2.83 0.42 1.45 9.11 86.20
+
+Device: rrqm/s wrqm/s r/s w/s rsec/s wsec/s rkB/s wkB/s avgrq-sz avgqu-sz await svctm %util
+hda 40.63 66.34 27.45 6.04 936.50 581.23 468.25 290.61 45.32 2.42 72.16 2.22 7.42
+hdc 0.01 0.00 0.01 0.00 0.03 0.00 0.02 0.00 4.02 0.00 1.17 1.17 0.00
+sda 0.09 2.32 4.15 1.33 71.56 29.23 35.78 14.62 18.37 0.65 118.49 6.39 3.51
+sdb 3.47 0.00 1.90 0.00 15.32 0.01 7.66 0.01 8.08 0.74 391.31 5.68 1.08
+fd0 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 2.00 0.00 45.00 45.00 0.00
+
+deathstar:/ # top
+top – 21:28:28 up 1:22, 2 users, load average: 0.09, 0.14, 0.16
+Tasks: 77 total, 1 running, 76 sleeping, 0 stopped, 0 zombie
+Cpu(s): 2.8% us, 1.3% sy, 0.4% ni, 86.2% id, 9.1% wa, 0.1% hi, 0.0% si
+Mem: 508644k total, 503612k used, 5032k free, 34052k buffers
+Swap: 1020088k total, 458980k used, 561108k free, 16012k cached
+
+PID USER PR NI VIRT RES SHR S %CPU %MEM TIME+ COMMAND
+1 root 16 0 640 56 28 S 0.0 0.0 0:05.14 init
+2 root 34 19 0 0 0 S 0.0 0.0 0:00.00 ksoftirqd/0
+3 root 5 -10 0 0 0 S 0.0 0.0 0:00.09 events/0
+4 root 5 -10 0 0 0 S 0.0 0.0 0:00.00 khelper
+
+Next step, lets stress out your CPU but not the disks. The command below will try to create an endless zip file in /dev/null. 
+This generates no disk activity, but loads the CPU. Continue running “top” and “iostat -x 1? in the other two windows.
+
+cat /dev/zero | bzip2 -c > /dev/null
+
+If you see high CPU load but low iowait, we can eliminate CPU issues, IRQ conflicts, and faulty memory. 
+Just to be on the safe side, let’s test memory anyway:
+
+deathstar:/ # free
+total used free shared buffers cached
+Mem: 508644 503504 5140 0 37036 48968
+-/+ buffers/cache: 417500 91144
+Swap: 1020088 516196 503892
+
+This server has 508644Kb of RAM. Use the corresponding value for the following test:
+
+deathstar:/ # dd if=/dev/hda2 bs=508644 of=/backups/memtest count=1050
+1050+0 records in
+1050+0 records out
+
+deathstar:/ # md5sum /backups/memtest ; md5sum /backups/memtest ; md5sum /backups/memtest
+04762ff36b2231aac75754ab9c1a564a /backups/memtest
+04762ff36b2231aac75754ab9c1a564a /backups/memtest
+04762ff36b2231aac75754ab9c1a564a /backups/memtest
+
+The three MD5 values above should be identical. If they are not – your system has a faulty RAM chip.
+
+When you have eliminated hardware problems as possible causes of high iowait, the next step is to review firmware and drivers. 
+You are particularly interested in disk controller firmware: unstable performance and no error messages are the signs of a firmware problem. 
+Try really hard to remember if you made any system changes recently, especially something that required a reboot – like kernel upgrade, 
+for example. If this is the case, roll back the upgrade or search for upgrade firmware. You should grab a copy of 
+Sysinfo (free 30-day trial) to help you identify makes and models of your disks, controllers, etc.
+
+While your disks and controllers may be tip-top, your may have a problem with a filesystem. 
+Even if you see high iowait when accessing any filesystem, you should still check out the partition where /var is mounted 
+and swap – if there is a problem, it will manifest itself regardless of what your system is doing. But here you will run into a 
+little problem: fsck will not scan a mounted partition and you cannot unmount /var. Let’s say these are your partitions:
+
+deathstar:/ # more /etc/fstab
+/dev/hda2 / reiserfs acl,user_xattr 1 1
+/dev/hda1 swap swap pri=42 0 0
+
+You need to fsck /dev/hda2 because this is where your /var is mounted. Download KNOPPIX or Ubuntu LiveCD, 
+boot from CD (without installing) and “fsck /dev/hda2? from there. If everything looks clean, shut down your system, 
+take the CD out and boot normally. The next step is to check out swap. If you just run fsck on the swap partition, it will fail:
+
+deathstar:/ # fsck /dev/hda1
+fsck 1.34 (25-Jul-2003)
+fsck: fsck.swap: not found
+fsck: Error 2 while executing fsck.swap for /dev/hda1
+
+You need to disable swap on /dev/hda1 before you can scan it. Before you can do this, you need to add another 
+swap area: you cannot run without any swap space. So, to add swap on the fly, create a swap file (1Gb in this example):
+
+deathstar:/ # dd if=/dev/zero of=/swapfile bs=1024 count=1048576
+1048576+0 records in
+1048576+0 records out
+
+deathstar:/ # chmod 600 /swapfile
+
+deathstar:/ # ls -lash /swapfile
+1.1G -rw——- 1 root root 1.0G Dec 20 22:48 /swapfile
+
+Now you can set up and activate the new swap file:
+
+deathstar:/ # mkswap /swapfile
+Setting up swapspace version 1, size = 1073737 kB
+deathstar:/ # free
+total used free shared buffers cached
+Mem: 508644 500996 7648 0 38912 147332
+-/+ buffers/cache: 314752 193892
+Swap: 1020088 521784 498304
+deathstar:/ # swapon /swapfile
+deathstar:/ # free
+total used free shared buffers cached
+Mem: 508644 502232 6412 0 39400 147392
+-/+ buffers/cache: 315440 193204
+Swap: 2068656 521784 1546872
+
+Now we need to deactivate the original swap partition. This operation may take a couple minutes to complete:
+
+deathstar:/ # swapoff /dev/hda1
+deathstar:/ # free
+total used free shared buffers cached
+Mem: 508644 501624 7020 0 31712 10416
+-/+ buffers/cache: 459496 49148
+Swap: 1048568 167032 881536
+
+The next step is to create a standard filesystem on the old swap partition, so that fsck has something to scan:
+
+deathstar:/ # mke2fs -c /dev/hda1
+mke2fs 1.34 (25-Jul-2003)
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+127744 inodes, 255024 blocks
+12751 blocks (5.00%) reserved for the super user
+First data block=0
+8 block groups
+32768 blocks per group, 32768 fragments per group
+15968 inodes per group
+Superblock backups stored on blocks:
+32768, 98304, 163840, 229376
+Checking for bad blocks (read-only test): done
+Writing inode tables: done
+Writing superblocks and filesystem accounting information: done
+
+The previous operation already ran fsck and so, if you see no errors, you can now re-activate your
+ original swap space and remove the temporary swap you created:
+
+deathstar:/ # mkswap /dev/hda1
+Setting up swapspace version 1, size = 1044574 kB
+deathstar:/ # swapon /dev/hda1
+deathstar:/ # swapoff /swapfile
+deathstar:/ # rm /swapfile
+deathstar:/ # free
+total used free shared buffers cached
+Mem: 508644 503172 5472 0 33668 9256
+-/+ buffers/cache: 460248 48396
+Swap: 1020088 156300 863788
+
+Anothe command commonly used for analyzing system bottlenecks is vmstat. The following example runs vmstat five times at 2-second intervals:
+
+deathstar:~ # vmstat -S M 2 5
+procs ———–memory———- —swap– —–io—- –system– —-cpu—-
+r b swpd free buff cache si so bi bo in cs us sy id wa
+0 0 15 174 70 58 0 0 189 50 5 6 1 3 94 1
+0 0 15 174 70 58 0 0 0 0 1005 35 4 0 96 0
+0 1 15 174 70 58 0 0 0 258 1515 45 0 6 88 7
+0 0 15 173 71 58 0 0 0 194 1083 24 0 1 83 16
+0 0 15 173 71 58 0 0 0 0 1003 19 0 0 100 0
+
+Explanation of vmstat columns:
+
+(a) procs is the process-related fields are:
+
+* r: The number of processes waiting for run time.
+* b: The number of processes in uninterruptible sleep.
+
+(b) memory is the memory-related fields are:
+
+* swpd: the amount of virtual memory used.
+* free: the amount of idle memory.
+* buff: the amount of memory used as buffers.
+* cache: the amount of memory used as cache.
+
+(c) swap is swap-related fields are:
+
+* si: Amount of memory swapped in from disk (/s).
+* so: Amount of memory swapped to disk (/s).
+
+(d) io is the I/O-related fields are:
+
+* bi: Blocks received from a block device (blocks/s).
+* bo: Blocks sent to a block device (blocks/s).
+
+(e) system is the system-related fields are:
+
+* in: The number of interrupts per second, including the clock.
+* cs: The number of context switches per second.
+
+(f) cpu is the CPU-related fields are:
+
+These are percentages of total CPU time.
+
+* us: Time spent running non-kernel code. (user time, including nice time)
+* sy: Time spent running kernel code. (system time)
+* id: Time spent idle. Prior to Linux 2.5.41, this includes IO-wait time.
+* wa: Time spent waiting for IO. Prior to Linux 2.5.41, shown as zero.
+
+If you failed to identify the cause of the iowait problem, you should consider the possibility that there is no problem: 
+perhaps your system is handling extra load and running short on resources. Take a look at the running 
+processes and see what’s eating up memory. Perhaps you upgraded an application and now it is using more RAM, 
+which leads to high swapping, which leads to high disk activity, which leads to high iowait.
+
+The solutions are simple:
+
+1. Install more RAM
+2. Move swap to another disk or – even better – move it to another disk on a separate controller.
+3. Move user applications to another disk/controller and specify default log locations outside of the system disk

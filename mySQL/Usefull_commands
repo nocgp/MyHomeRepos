@@ -42,6 +42,10 @@ Sometimes you want to see who can access what. To check global-level privileges 
 For multi instance grant /etc/init.d/mysqld script shutdown mysql 
 mysql> GRANT SHUTDOWN ON *.* TO multi_admin@localhost IDENTIFIED BY 'passwd'
 
+
+Allow subnet:
+mysql> GRANT ALL PRIVILEGES ON *.* TO 'root'@'X.X.X.X/255.255.255.0';
+
 ---------	Server Status Variables	-------------------------
  SHOW [GLOBAL | SESSION] STATUS  \ SET ;
 

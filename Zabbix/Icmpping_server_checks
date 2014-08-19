@@ -1,0 +1,11 @@
+Refrence: https://www.zabbix.com/documentation/2.0/manual/config/items/itemtypes/simple_checks#icmp_pings
+
+Checks if server is accessible by ICMP ping.
+
+Servers were configured with ansible:
+ansible Hetzner -m shell -a "chown root:zabbix /usr/sbin/fping; chmod 4710 /usr/sbin/fping"
+ansible Hetzner -m yum -a "name=fping state=latest" 
+
+Zabbix Server was configured:
+icmpping[,3] - if at least one packet of the four is returned, the item will return 1.
+

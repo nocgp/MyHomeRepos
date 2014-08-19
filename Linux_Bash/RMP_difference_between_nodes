@@ -1,0 +1,1 @@
+sudo rpmscomp -d @server_one @server_two | less

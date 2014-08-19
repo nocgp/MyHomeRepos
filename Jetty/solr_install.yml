@@ -1,0 +1,44 @@
+---
+# 
+
+- name: Install solr and jetty 
+  hosts: host
+  user: root
+  tasks:
+
+    - name: Install java
+      yum: name=java-1.7.0-openjdk state=present
+
+    - name: Create jetty source folder
+      shell: mkdir /opt/jetty-9.2.1; mkdir /opt/solr-4.9.0; mkdir /var/log/jetty-9.2.1/ 
+
+
+    - name: Install solr 4.9.0
+      unarchive: src=/etc/ansible/files/solr/solr-4.9.0.configured.tar.gz  dest=/opt/solr-4.9.0
+
+    - name: Install jetty 9.2.1
+      unarchive: src=/etc/ansible/files/solr/jetty-9.2.1.configured.tar.gz  dest=/opt/jetty-9.2.1
+
+    - name: Copy jetty config 
+      copy: src=/etc/ansible/files/solr/jetty  dest=/etc/default/jetty
+
+    - name: Create jetty group
+      group: name=jetty state=present system=yes
+
+    - name: Create jetty user
+      user: name=jetty comment="Jetty user" home=/home/jetty group=jetty system=yes
+   
+    - name: Create jetty start up script
+      shell: ln -s /opt/jetty-9.2.1/bin/jetty.sh /etc/init.d/jetty
+    
+    - name: Ansible cannot unarchive filesin to non-existing folder, we should mv dirs after that
+      shell: mv /opt/solr-4.9.0/solr-4.9.0/* /opt/solr-4.9.0/; mv /opt/jetty-9.2.1/jetty-9.2.1/* /opt/jetty-9.2.1/; rmdir /opt/jetty-9.2.1/jetty-9.2.1; rmdir /opt/solr-4.9.0/solr-4.9.0 
+
+    - name: Modify user rights to solr/collection1
+      shell: chown -R jetty:jetty /opt/solr-4.9.0/; chown -R jetty:jetty /var/log/jetty-9.2.1/; chown -R jetty:jetty /opt/jetty-9.2.1
+
+    - name: Start jetty service
+      service: name=jetty state=restarted
+
+    - name: Configure jetty to start automatically
+      shell: chkconfig jetty on

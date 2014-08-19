@@ -1,0 +1,80 @@
+Refrence: http://activedeveloper.info/a-thing-or-two-about-postfix-log-analysis.html
+
+A thing or two about Postfix log analysis
+In the last couple of days I had to work on a parser for our email server which uses Postfix; and while it was my first time when I had anything to do with Postfix logs there are a couple of things I'd like to share to the ones that are starting just now with them.
+
+As with often encountered log parsing necessities, the requirements for my task where so distinctive that I couldn't use any of the Postfix logfile analysis tools it has to offer.
+
+If you are reading this article because you need to parse Postfix log files (and most certainly that is the case), than I would highly recommend to analyze the provided list of tools before moving forward. While parsing logs is not a hard task, it does take some time before getting it right.
+
+Note: for matching different values from the log I have used Perl Compatible Regular Expressions, so you might have to adapt them if you are using POSIX regular expressions.
+
+Also note: the information I will share about the log format is not complete, and for more information you will most likely have to digg deeper in the subject (area where I have failed, or least my Google-fu didn't work as expected). All the things I am going to share are based on 2 days of experimenting with the Postfix logs.
+
+As the first things to note about the Postfix log format, are the four different types of log entries it defines:
+
+postfix/qmgr - holds the time an email was removed from que or its size, sender and number of recipients.
+postfix/smtp - destination, delay, relay and status (which can be sent, bounced, deferred) as well as aditional information regarding the operation (errors encountered while trying to send the email and such).
+postfix/smtpd - the Host/IP Address of the client connected to the SMTP daemon.
+postfix/cleanup - the message id of the currently processed email.
+At this point I already think you have a general idea what are the common patterns to search when looking for a specific detail for a message. The should be obvious but I will share the regular expressions for these main entry types:
+
+postfix/qmgr
+postfix/smtp\[
+postfix/smtpd
+postfix/cleanup
+Hint: you could use grep -P to test these regular expression against your Postfix log file.
+
+And the thing that ties all these fields together is the que id. The que id is a string formed of hexadecimal characters (just lowercase letters), having 11 characters and being a part of each entry type defined above.
+
+For extracting the que id from the Postfix log entries I used the following regular expression:
+
+postfix/[^:]*: ([A-F0-9]{11}){1}:
+I used the grouping because that way in any scripting language using PCRE the extraction of values becomes easier. In my case I had to implement the parser in PHP - even if I have aspired for a different solution using sed and awk :).
+
+By now it should be clear, that when building a parser the que id should be used as the base key for checking the process steps that took place on the email; but of course when wanting unique id's to define the email I would still go with the emails message-id.
+
+postfix/cleanup\[\d+\]: [A-F0-9]{11}: message-id=<([^>]+){1}>
+Another thing I did need when processing the logs was to differentiate between incoming emails and outgoing emails. To do this I simply searched in the postfix/smtp entry if the relays IP Address was the mailservers IP Address. Nothing more simpler.
+
+relay=127\.0\.0\.1
+Another thing that was of interest to me, were the IP Addresses of the clients who connected to the SMTP daemon (mostly other servers). The following regular expression was applied over a postfix/smtpd entry:
+
+postfix/smtpd\[\d+\]: [A-F0-9]{11}: client=([^[]+)+
+postfix/smtpd\[\d+\]: [A-F0-9]{11}: client=.*?\[([0-9.]+)+\]
+The first regular expression is used for extracting the hostname of the connected client, while the second one is used for extracting the IP Address of the connected client.
+
+When sending outgoing emails, the clients hostname will be localhost so that is a good thing to now, and a second way to figure out the type of the email (incoming/outgoing).
+
+The date time value is stored in the log file as the first element of a log entry and has the format of the following examples:
+
+Apr 1 12:01:12
+Jun 21 12:02:24
+And the simplest pattern to extract the date is the following:
+
+^(\w{3}[^a-zA-Z]+)+
+Extracting data from the postfix/qmgr can be easily pulled of with the following regular expressions:
+
+postfix/qmgr\[\d+\]: [A-F0-9]{11}: removed
+from=<([^>]+){1}>
+size=([0-9]+){1}
+nrcpt=([0-9]+){1}
+First regular expression matches the case when a message was removed from que; in this case you may group the que id to have direct reference, while the last three regular expression match all the data available in the other entry type in postfix/qmgr.
+
+As far as postfix/smtp goes, no big difference in the way the data is extracted:
+
+to=<([^>]+){1}>
+status=([^ ]+){1}
+orig_to=<([^>]+){1}>
+queued as ([a-f0-9]{11}){1})$
+To and status are obvious (explained earlier) fields, while relay and delay I will leave it for you to extract if needed.
+
+Now you may be questioning what is it with the last two regular expressions. In my application parser I had to monitor the email forwardings that took place on our mailserver, and I was lucky to find out that when forwarding the email, the processed outgoing email - had an example somewhere higher in the text on how to differentiate incoming/outgoing emails - also exposed the email address it does the forwarding for, through orig_to.
+
+As concerning the last regular expression, when forwarding emails you generally have to make the connection between the incoming email and outgoing email, and for this you use the last express to retrieve the que id which is assigned to the outgoing emails.
+
+Note:when forwarding an email to multiple addresses, they all use the same outgoing que id, so that makes it even a bit harder to parse.
+
+That is all I can share with you at this moment about Postfix log analysis; I said this moment because the time I'll have to return to them at the current state is still unknown.
+
+Hopefully this few tips will help you along while parsing the logs, because I know they have, and would have saved quite some time if I would have known them earlier.

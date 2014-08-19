@@ -1,0 +1,7 @@
+JAVA_HOME=/usr/lib/jvm/jre-1.7.0-openjdk.x86_64
+JAVA=$JAVA_HOME/bin/java 
+JAVA_OPTIONS=" -server -Xms256m -Xmx1024m -XX:+DisableExplicitGC -Dsolr.solr.home=/opt/solr-4.9.0 -Dlog4j.configuration=file:/opt/jetty-9.2.1/etc/logging.properties "
+JETTY_HOME=/opt/jetty-9.2.1/
+JETTY_USER=jetty 
+JETTY_HOST=0.0.0.0
+JETTY_LOGS=/var/log/jetty-9.2.1/
