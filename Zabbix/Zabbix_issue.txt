@@ -7,7 +7,7 @@ trigger:  agent.ping.nodata(2m)}=1
  
 If Zabbix 2 can not  resolve few hosts fqdn  -  agent.ping fails for all 134 monitored hosts.
 If you try to query agent on the host that is OK during the issue :  
-                                                [root@zabbix2 ~]# time `zabbix_get -s admindesk -p 10050 -k agent.ping`
+                                                [root@serv ~]# time `zabbix_get -s admindesk -p 10050 -k agent.ping`
 Response time from agent more than 20 sec. Normal response time:  ~ real    0m0.304s.
 However, ping is OK to the host that is OK.  Seems, response time from agent  on  normal hosts grows during the issue because Zabbix server is too busy..
 Zabbix server reports "network issues" for all hosts in server logs, Queue of items to be updates grows - screenshots below:
@@ -16,8 +16,8 @@ Also Zabbix fping servers, this item returns correct values during the issue and
 Timeout option (for how long we wait for agent) on server side: 25 sec,
 Number of pre-forked instances of pollers for unreachable hosts: StartPollersUnreachable=5
 
-removing kievlan.local from /etc/resolv.conf did not work:
-[root@zabbix2 ~]# time zabbix_get -s admindesk.gpserver.dk -p 10050 -k agent.ping
+removing resolver name from /etc/resolv.conf did not work:
+[root@zabbix2 ~]# time zabbix_get -s server -p 10050 -k agent.ping
 zabbix_get [1085]: Timeout while executing operation
 real    1m0.012s
 user    0m0.006s
@@ -31,13 +31,17 @@ Reference: https://www.zabbix.com/forum/showthread.php?t=40967
 
 
 Problem was fixed :
-FQDN(s) of kievlan.local hosts were switched to IP(s) in zabbix,
-Search name kievlan.local was removed from resolv.conf.
-(did not help as a single solution, but could speed up response time from agent) ServerName from agents side in zabbix_agentd.conf file was changed from ZABBIX Server FQDN to IP. Could be that agents also try to resolve IP from which they receive query to DNS name in order to compare that name with names listed in config file. Agents trust and respond only to servers listed in zabbix_agentd.conf file.
+FQDN(s) of few hosts were switched to IP(s) in zabbix,
+Search name domain was removed from resolv.conf.
+(did not help as a single solution, but could speed up response time from agent) ServerName from agents side in zabbix_agentd.conf file was changed from ZABBIX Server FQDN to IP. 
+Could be that agents also try to resolve IP from which they receive query to DNS name in order to compare that name with names listed in config file. 
+Agents trust and respond only to servers listed in zabbix_agentd.conf file.
+
 Summarizing this problem,
-Seems that connection just hangs to the resolver kievlan.local  when it is not available on the network.
+Seems that connection just hangs to the resolver domain  when it is not available on the network.
 Zabbix configured to use DNS names for majority of hosts. It could be that Zabbix tries to resolve hosts FQDN(s) in any case in the current configuration.
  
 However, hang connection to the unreachable resolver in resolv.conf makes queue of items to be updated to grow. 
-Somewhere at this point timeouts appear. Zabbix reports "ZBX_TCP_READ() [4] Interrupted System Call" error for many hosts. Item agent.ping does not get any data from queried hosts. Or item agent.ping  spends  too much time in  Zabbix Pool Processes  so query agent.ping does not reach queried host in time. 
+Somewhere at this point timeouts appear. Zabbix reports "ZBX_TCP_READ() [4] Interrupted System Call" error for many hosts. Item agent.ping does not get any data from queried hosts. 
+Or item agent.ping  spends  too much time in  Zabbix Pool Processes  so query agent.ping does not reach queried host in time. 
 Trigger fires an issue in dashboard for many hosts. 
