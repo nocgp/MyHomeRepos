@@ -1,0 +1,39 @@
+6 Unreachable/unavailable host settings
+
+Overview
+
+Several configuration parameters define how Zabbix server should behave when an agent check (Zabbix, SNMP, IPMI, JMX) fails and a host becomes unreachable.
+
+Unreachable host
+
+A host is treated as unreachable after a failed agent check (network error, timeout).
+
+From that moment UnreachableDelay defines how often items are rechecked in this unreachability situation and such rechecks will be performed already by unreachable pollers. By default it is 15 seconds before the next check.
+
+In the Zabbix server log unreachability is indicated by messages like these:
+
+Zabbix agent item [system.cpu.load[percpu,avg1]] on host [New host] failed: first network error, wait for 15 seconds
+Zabbix agent item [system.cpu.load[percpu,avg15]] on host [New host] failed: another network error, wait for 15 seconds
+Note that the exact item that failed is indicated and the item type (Zabbix agent).
+
+The Timeout parameter will also affect how early an item is rechecked during unreachability. If the Timeout is 20 seconds and UnreachableDelay 30 seconds, the next check will be in 50 seconds after the first attempt.
+The UnreachablePeriod parameter defines how long the unreachability period is in total. By default UnreachablePeriod is 45 seconds. UnreachablePeriod should be several times bigger than UnreachableDelay, so that items are rechecked more than once before a host becomes unavailable.
+
+Unavailable host
+
+After the UnreachablePeriod ends and the host has not reappeared, the host is treated as unavailable.
+
+In the server log it is indicated by messages like these:
+
+temporarily disabling Zabbix agent checks on host [New host]: host unavailable
+and in the frontend the host availability icon goes from green to red (note that on mouseover a tooltip with the error description is displayed):
+
+
+
+The UnavailableDelay parameter defines how often items are checked during host unavailability.
+
+By default it is 60 seconds (so in this case “temporarily disabling”, from the log message above, will mean disabling checks for one minute).
+
+When the connection to the host is restored, the monitoring returns to normal automatically:
+
+enabling Zabbix agent checks on host [New host]: host became available

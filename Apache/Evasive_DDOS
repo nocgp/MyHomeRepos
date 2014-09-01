@@ -1,0 +1,74 @@
+mod_evasive is an Apache module for preventing DoS attacks.
+
+Essentially, you set some limits for how many times an IP address can make requests to your site over a given interval. It's useful in a variety of contexts, but not well documented.
+
+Installation
+
+Set up is straight forward (instructions for Apache 2). As root:
+
+wget http://www.zdziarski.com/blog/wp-content/uploads/2010/02/mod_evasive_1.10.1.tar.gz
+tar xzf mod_evasive_1.10.1.tar.gz
+cd mod_evasive
+apxs -cia mod_evasive20.c
+Great! The module's been installed. Now it's time to set up your limits.
+
+Configuration
+
+It turns out there's a few of different options, and the documentation isn't completely clear on how they work.
+
+Here's the default settings for mod_evasive:
+
+DOSHashTableSize    3097
+DOSPageCount        2
+DOSSiteCount        50
+DOSPageInterval     1
+DOSSiteInterval     1
+DOSBlockingPeriod   60
+What is DOSHashTableSize, and why does it have such a weird number? What's the difference between DOSPageCount and DOSSiteCount? The internet was surprisingly unforthcoming on the subject.
+
+A quick overview:
+
+DOSHashTableSize is related to how mod_evasive keeps track of who's accessing what. The larger the number, the quicker the look-up when checking what the visitor's visited in the past, but at the expense of consuming more memory. This number is expected to be a prime number, and will be tiered to the nearest prime number.
+DOSPageCount is how many identical requests to a specific URI (think "example.org/about.html" or "example.org/cat.jpg") a visitor can make over the DOSPageInterval interval (typically a second).
+DOSSiteCount is similar to DOSPageCount, but relates to how many requests overall a visitor can make to your site over the DOSSiteInterval interval (typically also a second).
+If a visitor exceeds these limits, they are blacklisted for a set amount of time (DOSBlockingPeriod). During this time, any requests they make will return a 403 Forbidden error.
+
+Because it's hard to predict what settings will suit your site best, you'll want to keep an eye on how your site performs while running mod_evasive. You can set up email notifications with DOSEmailNotify (sends via mail) to get alerted every time someone gets blacklisted. Watch your server logs for an excess of 403 Forbidden responses – if you're getting too many, you might be blocking legitimate visitors.
+
+Putting it all together, here's an example configuration (add to the bottom of your httpd.conf file):
+***********************************************************
+# Rate limiting
+# Learn more at http://library.linode.com/web-servers/apache/mod-evasive
+<IfModule mod_evasive20.c>
+    # The hash table size defines the number of top-level nodes for each child's
+    # hash table. Increasing this number will provide faster performance by
+    # decreasing the number of iterations required to get to the record, but
+    # consume more memory for table space. You should increase this if you have
+    # a busy web server. The value you specify will automatically be tiered up
+    # to the next prime number in the primes list (see mod_evasive.c for a list
+    # of primes used).
+    DOSHashTableSize 3097
+
+    # If set, this email address will receive a notification whenever an IP
+    # address becomes blacklisted. A locking mechanism prevents continous
+    # emails from being sent.
+    DOSEmailNotify admin@example.org
+
+    # NOTE: The following settings apply on a per-IP address basis.
+
+    # Allow up to 2 requests for the same URI per second:
+    DOSPageInterval 1
+    DOSPageCount 2
+
+    # Allow up to 50 requests across the site per second:
+    DOSSiteInterval 1
+    DOSSiteCount 50
+
+    # Once the client is blacklisted, prevent them from accessing the site
+    # for 60 seconds:
+    DOSBlockingPeriod 60
+</IfModule>
+*******************************************************************
+
+
+Make sure apachectl configtest passes ("Syntax OK") and restart Apache: apachectl graceful.

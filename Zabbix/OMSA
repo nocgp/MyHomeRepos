@@ -1,0 +1,5 @@
+Seems that almost all servers did not start the OMSA on boot - that was definitely a problem since that is the service responsible for detecting errors and report them via SNMP.
+ 
+I have run the following on all physical Dell nodes:
+ 
+/opt/dell/srvadmin/sbin/srvadmin-services.sh restart; omreport system alertlog; /opt/dell/srvadmin/sbin/srvadmin-services.sh enable
