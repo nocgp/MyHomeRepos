@@ -1,0 +1,35 @@
+Understand replication internals; http://www.percona.com/blog/2008/07/07/how-show-slave-status-relates-to-change-master-to/
+
+************************
+Duplicate Key errors
+
+Simply add this to my.cnf on the Slave
+[mysqld]
+slave-skip-errors=1062
+skip-slave-start
+
+retart mysql. Start slave. all the duplicate-key errors will get bypassed. When Seconds_Behind_Master gets to 0, 
+remove those lines and restart mysql.
+
+
+The tools you need are
+pt-table-checksum : http://www.percona.com/doc/percona-toolkit/2.0/pt-table-checksum.html
+dependancies: http://pkgs.repoforge.org/ or simply: wget percona.com/get/percona-toolkit.rpm; yum install percona-toolkit.rpm (this will resolve
+dependacies automatically)
+pt-table-sync : http://www.percona.com/doc/percona-toolkit/2.0/pt-table-sync.html
+Use these to find the differences in the Slave, and then correct them
+****************************************
+
+How-to fix Mysql slave after relay log corrupted
+Most of time in our cases, it’s due to Linux host crashed unexpectedly.
+In this case, we can check if the bin log at master node is still available.
+
+Relay_Master_Log_File:
+Exec_Master_Log_Pos:
+
+Be careful, using 
+	Relay_Master_Log_File 
+value in “show slave status\G” for master_log_file, not 
+	Master_Log_File value. 
+
+mysql>stop slave; change master to master_log_file='LBMS-bin.000012',master_log_pos=221245113; start slave;

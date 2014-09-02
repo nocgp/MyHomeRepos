@@ -1,0 +1,20 @@
+mod_extract_forwarded
+mod_extract_forwarded is available in EPEL, so it's available for CentOS systems without compling. 
+
+Install
+yum install mod_extract_forwarded.x86_64
+
+Configuration
+/etc/httpd/conf.d/mod_extract_forwarded.conf
+MEForder refuse,accept
+MEFrefuse all
+MEFaccept LB-IP
+MEFaddenv on
+MEFdebug off
+
+apachectl configtest
+apachectl graceful
+
+Confirm that module was loaded:
+lsof | grep httpd | grep modules | grep mod_extract_forwarded
+Make sure that external IPs go to: tail -100f /var/log/httpd/access_log_full.**
