@@ -1,4 +1,5 @@
-Understand replication internals; http://www.percona.com/blog/2008/07/07/how-show-slave-status-relates-to-change-master-to/
+Understand replication internals; http://www.percona.com/blog/2008/07/07/how-show-slave-status-relates-to-change-
+master-to/
 
 ************************
 Duplicate Key errors
@@ -18,6 +19,19 @@ dependancies: http://pkgs.repoforge.org/ or simply: wget percona.com/get/percona
 dependacies automatically)
 pt-table-sync : http://www.percona.com/doc/percona-toolkit/2.0/pt-table-sync.html
 Use these to find the differences in the Slave, and then correct them
+
+on slave:
+nano /etc/my.cnf
+report-host			=	slave_host_name
+port                            =       3338
+(in order to force slave to show its host)
+
+install percona-toolkit.rpm on master.
+mysql>show slave hosts; 
+(make sure slave host name is there)
+first time: pt-table-checksum --recursion-method=hosts --replicate=percona.checksums --create-replicate-table localhost | tee file 
+second time: pt-table-checksum --recursion-method=hosts --replicate=percona.checksums --replicate-check-only localhost | tee file
+pt-table-sync --recursion-method=hosts --print --replicate percona.checksums localhost | tee file
 ****************************************
 
 How-to fix Mysql slave after relay log corrupted

@@ -40,3 +40,7 @@ listen_addresses = '*'
 Links: 
 http://www.postgresql.org/docs/8.1/static/backup.html
 http://www.postgresql.org/docs/8.0/static/sql-alteruser.html
+---------------------------------------
+Show tables:
+\dt
+SELECT * FROM pg_catalog.pg_tables

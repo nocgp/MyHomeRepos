@@ -1,0 +1,15 @@
+List keys
+gpg --list-keys
+
+Send keys to server
+gpg --send-keys --keyserver pgp.mit.edu key_id
+
+Search keys on public server
+gpg --keyserver pgp.mit.edu  --search-keys param
+
+Receive pub key from key server
+gpg --keyserver pgp.mit.edu  --recv-keys ID
+
+
+Encrypt 
+gpg --encrypt --sign --armor -r person@email.com name_of_file
