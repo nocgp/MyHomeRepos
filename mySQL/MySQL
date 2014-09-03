@@ -1,0 +1,56 @@
+
+To verify the signature for a specific package, you first need to obtain a copy of our public GPG  (GNU Privacy Guard) build key
+
+1) find publi key mysql-build@oss.oracle.com in public key server http://pgp.mit.edu/
+2) copy - past key to mysql_pubkey.asc
+3) import the key into your RPM configuration to validate RPM install packages : rpm --import mysql_pubkey.asc
+(http://dev.mysql.com/doc/refman/5.0/en/checking-gpg-signature.html)
+
+You can also enable and disable sub-repositories by editing manually the /etc/yum.repos.d/
+mysql-community.repo file. This is a typical entry for a sub-repository in the file:
+# Enable to use MySQL 5.6
+[mysql56-community]
+name=MySQL 5.6 Community Server
+baseurl=//repo.mysql.com/yum/mysql-5.6-community/el/5/$basearch/
+enabled=1
+gpgcheck=1
+#gpgkey=file:/etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
+
+
+yum repolist enabled | grep "mysql.*-community.*"
+/etc/my.cnf				Config MySQL server
+/usr/bin/mysqladmin		mysql admin GUI
+
+chkconfig mysqld on
+service mysqld start \ reload \ status \ restart
+
+
+
+
+yum list installed mysql\*
+yum --disablerepo=\* provides mysql\*
+
+
+netstat -tulpn | grep :3306
+(l - listening, p - show name and PID of the program, n -show numeric address)
+
+vi /etc/sysconfig/iptables
+Note however, that it might be that there is no my.cnf file at any of these locations. So, you can create the file on your own - use one of the sample config files provided with MySQL distribution (on Linux - see /usr/share/mysql/*.cnf files and use whichever is appropriate for you - copy it to /etc/my.cnf and then modify as needed). Also, note that there is also a command line option --defaults-file which may define custom path to my.cnf or my.ini file. For example, this is the case for MySQL 5.5 on Windows - it points to a my.ini file in the data directory, which is not normally listed with mysqld --help --verbose
+/usr/share/mysql/my-default.cnf  
+http://dev.mysql.com/doc/refman/5.5/en/option-files.html
+
+If the command fails immediately and prints mysqld ended, look for information in the error log (which
+by default is the host_name.err file in the data directory).
+
+Directory 			Contents of Directory
+bin 				Client programs and the mysqld server
+data 				Log files, databases
+docs 				Manual in Info format
+man 				Unix manual pages
+include 			Include (header) files
+lib 				Libraries
+scripts mysql_install_db
+share  				Miscellaneous support files, including error messages,
+sample 				configuration files, SQL for database installation
+sql-bench 			Benchmarks
+
