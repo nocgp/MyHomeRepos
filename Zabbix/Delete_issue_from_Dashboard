@@ -1,0 +1,28 @@
+Issues in Zabbix Dashboard are triggers.
+Use API to find trigger id:
+
+import sys, os
+from zabbix_api import ZabbixAPI
+
+zabbixServer = 'http://PUT_ZB_SERVER_HERE/'
+zabbixUser = 'Admin'
+zabbixPass = 'PuT_REAL_PASS_HERE'
+
+zapi = ZabbixAPI(server=zabbixServer, path="", log_level=0)
+zapi.login(zabbixUser, zabbixPass)
+
+# status 0 - enabled tr, priority 3 - Average, value 1 - acknowledged
+for tr in zapi.trigger.get({
+        "output": "extend",
+        "selectFunctions": "extend",
+        "filter":{"value":"1","priority":"3", "status":"0"}}):
+    print tr
+
+on mysql side:
+mysql> delete from triggers where triggerid in (23178,23232,23235,23278);
+
+
+
+
+TRIGGER object:
+https://www.zabbix.com/documentation/2.2/manual/api/reference/trigger/object
