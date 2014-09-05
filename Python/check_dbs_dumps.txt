@@ -13,8 +13,8 @@ log_dump_fail = '/tmp/mysqldump_FAIL'
 log_fail = open(log_dump_fail,'w').close()
 log_fail = open(log_dump_fail, 'a')
 
-sender = 'root@backup.srvlan.local'
-receiver = ['noc@goldenplanet.com']
+sender = '**'
+receiver = ['**']
 smtp_daemon_host = 'localhost'
 
 def db_backup_file_does_not_exist(db_backup_file):
@@ -82,7 +82,7 @@ ORDER BY servername;
         
 	db = row[0]
         server_name = str(row[1])
-	if ''.join(server_name) == 'BMCLUSTERDB':
+	if ''.join(server_name) == 'DO_NOT_CHECK_SRV':
 		continue
 	else:
 		db_backup_file = '/storage/backup/db/mysql/' + str(db) + '/current/' + str(db) + '.mysql.gz'
