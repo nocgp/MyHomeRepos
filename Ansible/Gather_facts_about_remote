@@ -1,0 +1,15 @@
+http://docs.ansible.com/setup_module.html
+
+# Display facts from all hosts and store them indexed by I(hostname) at C(/tmp/facts).
+ansible all -m setup --tree /tmp/facts
+
+# Display only facts regarding memory found by ansible on all hosts and output them.
+ansible all -m setup -a 'filter=ansible_*_mb'
+
+# Display only facts returned by facter.
+ansible all -m setup -a 'filter=facter_*'
+
+# Display only facts about certain interfaces.
+ansible all -m setup -a 'filter=ansible_eth[0-2]'
+
+facts 
