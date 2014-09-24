@@ -1,0 +1,13 @@
+If you get error like this one
+Error 400
+Your browser sent a request that this server could not understand.
+Size of a request header field exceeds server limit.
+That means that your browser is trying to send too much at once. Probably, it’s size of the cookies. The easy way to fix it – delete cookies. Of course, you lose all info in the cookies, but at least you can access site again.
+If you develop/manage web site and your customers complain of this error message – there are two things to do:
+Review cookies and limit the size of cookies your application stores in the browser.
+Increase allowed request size in web server configuration
+To increase request size in Apache, add directive LimitRequestFieldSize to the configuration file. Default value is 8190 bytes. To increase it 2 times add
+
+LimitRequestFieldSize 16380
+
+Apache restart is required.
