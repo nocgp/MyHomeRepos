@@ -1,0 +1,23 @@
+---
+# 
+
+- name: Update zabbix config. 
+  hosts:  
+  user: root
+  tasks:
+    - name: Transfer the script "Host create"
+      copy: src=/etc/ansible/create_hetzner-host_in_zabbix dest=/tmp
+      delegate_to: zabbix_server
+
+    - name: Create host
+      command: python /tmp/create_hetzner-host_in_zabbix/host_create.py {{zabbix_host}} {{ansible_fqdn}} PASS LOGIN {{slave}}
+      delegate_to: zabbix_server
+
+    - name: Add screen
+      command: python /tmp/create_hetzner-host_in_zabbix/graph_add.py {{zabbix_host}} PASS LOG 'Hetzner Perfomance' {{slave}}
+      delegate_to: zabbix_server
+
+    - name: Add webcheck
+      command: python /tmp/create_hetzner-host_in_zabbix/webcheck_create.py {{zabbix_host}} PASS LOG {{url}} http://{{url}}
+      delegate_to: zabbix_server
+
