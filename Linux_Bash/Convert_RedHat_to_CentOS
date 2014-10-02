@@ -1,0 +1,15 @@
+http://knowledgelayer.softlayer.com/procedure/convert-redhat-centos
+
+yum clean all
+mkdir ~/centos && cd ~/centos/
+wget http://mirror.centos.org/centos/6.5/os/x86_64/RPM-GPG-KEY-CentOS-6
+wget http://mirror.centos.org/centos/6.5/os/x86_64/Packages/centos-release-6-5.el6.centos.11.1.x86_64.rpm
+wget http://mirror.centos.org/centos/6.5/os/x86_64/Packages/yum-3.2.29-40.el6.centos.noarch.rpm
+wget http://mirror.centos.org/centos/6.5/os/x86_64/Packages/yum-utils-1.1.30-14.el6.noarch.rpm
+wget http://mirror.centos.org/centos/6.5/os/x86_64/Packages/yum-plugin-fastestmirror-1.1.30-14.el6.noarch.rpm
+rpm --import RPM-GPG-KEY-CentOS-6
+rpm -e --nodeps redhat-release-server
+rpm -e rhn-check rhnsd rhn-setup yum-rhn-plugin
+rpm -Uvh --force *.rpm
+yum clean all
+yum upgrade
