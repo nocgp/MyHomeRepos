@@ -1,0 +1,1 @@
+pflogsumm -d today /var/log/maillog -h 20 -u 20 | less
