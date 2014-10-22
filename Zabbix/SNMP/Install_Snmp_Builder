@@ -22,7 +22,11 @@ The following files have to be fixed to get this to work:
 
 Patch zabbix files:
 1) cd /usr/share/zabbix/;
-2) edit files as described in DIFF
+2) copy patched filed from zabbix_SNMP dir (do a backup first) 
+
+
+----
+Files in folder already patched , no need in step below
 3) additionally: 
 change in /usr/share/zabbix/js/snmp_builder/snmp_builder.js from - 
 	string json = itemlist.data.toJSON();  
