@@ -1,0 +1,2 @@
+{my-template:system.hostname.regexp(IMPORTANT-SERVER)}#1
+This will trigger an alert if the hostname key returns a value that does not match "IMPORTANT-SERVER" (case sensitive).

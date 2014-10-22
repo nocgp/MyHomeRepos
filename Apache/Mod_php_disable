@@ -1,0 +1,21 @@
+check with 
+echo '<? 
+phpinfo();' >> info.php
+
+Server API:	CGI/FastCGI
+
+diable mod_php:
+Do the steps below:
+
+Disable the php.conf file that is configured to run as Apache module:
+    # mv /etc/httpd/conf.d/php.conf /etc/httpd/conf.d/php.conf.module
+Create the php.fcgi file in /var/www/cgi-bin with something like this:
+    #!/bin/bash
+    PHP_CGI=/usr/bin/php-cgi
+    exec $PHP_CGI
+
+Modify the DocumentRoot or VirtualHost section to add the AddHandler and Action directive:
+    ...
+    AddHandler php5-fastcgi .php
+    Action php5-fastcgi /cgi-bin/php.fcgi
+    

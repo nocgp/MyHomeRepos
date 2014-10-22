@@ -1,0 +1,13 @@
+Cleaning up A Git Repository After Failed Push With Large File
+April 22, 2014 in Github, Software Engineering
+Github has a limit of 100MB for file size. Sometimes a repository becomes corrupted when trying to push a commit with a large file;
+
+$ git push
+remote: error: GH001: Large files detected.
+remote: error: Trace: fd45c3e505c78ed10ce42d3a744d10b1
+remote: error: See http://git.io/iEPt8g for more information.
+remote: error: File BADFILENAME is XXX MB; this exceeds GitHub's file size limit of 100 MB
+
+This command sometimes works;
+$ git filter-branch -f --index-filter 'git rm --cached --ignore-unmatch BADFILENAME'
+Rewrite 3cbfef945f119d34f9244f1281238439883d0254 (15/15)rm 'BADFILENAME'
