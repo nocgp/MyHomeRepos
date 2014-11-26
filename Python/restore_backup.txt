@@ -1,0 +1,147 @@
+#!/bin/env python
+""" 
+Please note that script is "customer specific"
+     Usage:
+see available dumps: --user longisland --host XX
+restore from dump: --user longisland --host XX --backup_time old(current) --backup_name file_name
+"""
+import sys,re,time
+import paramiko
+from paramiko.ssh_exception import SSHException, BadHostKeyException, AuthenticationException
+from socket import error as socket_error
+import optparse, commands, pexpect
+
+
+parser = optparse.OptionParser()
+parser.add_option('--user', action="store", type="str")
+parser.add_option('--host', action="store", type="str")
+parser.add_option('--backup_time', action="store", type="str")
+parser.add_option('--backup_name', action="store", type="str")
+
+options, args = parser.parse_args()
+
+
+backup_server = 'backup.server'
+openbizbox_install = '/home/' + options.user + '/configs/openbizbox_install.info'
+openbizbox_content = ''
+db = ''
+current_dump = ''
+old_dump = ''
+very_old_dump = ''
+
+def db_name_searcher(text):
+        db_name_matched = re.search('DB_NAME=', text)
+	if db_name_matched: return text
+	else: return False
+
+# Read shop config and find db_name there 
+try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(options.host)
+        stdin, stdout, stderr = ssh.exec_command("cat " + openbizbox_install)
+        openbizbox_content = stdout.readlines()
+        ssh.close()
+except (BadHostKeyException, AuthenticationException,SSHException, socket_error) as e:
+        print "ssh fail ", options.host
+
+for line in openbizbox_content:
+    db_matched = db_name_searcher(line)
+    if db_matched:
+       db_name = db_matched.split('=')[1].replace('\n','').split('"')
+       db = db_name[1]
+
+# list of current, old dumps for given user
+try:
+	ssh = paramiko.SSHClient()
+	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+	ssh.connect(backup_server)
+	stdin, stdout, stderr = ssh.exec_command("ls -lht /mnt/backup/db/mysql/" + db + "/current/")
+	current_dump = stdout.readlines()
+        stdin, stdout, stderr = ssh.exec_command("ls -lht /mnt/backup/db/mysql/" + db + "/old/")
+        old_dump = stdout.readlines()
+        stdin, stdout, stderr = ssh.exec_command("ls -lht /mnt/backup/db/mysql/" + db + "/very_old/")
+        very_old_dump = stdout.readlines()
+	ssh.close()
+except (BadHostKeyException, AuthenticationException,SSHException, socket_error) as e:
+       	print "ssh fail ", backup_server
+
+print '\nAvailable dumps are:\n'
+print '-------------- '
+if len(current_dump)>0:
+   print ("Current dump for given user in " + backup_server + ":/mnt/backup/db/mysql/" + db + "/current/")
+   for line in current_dump[1:]:
+       print '\t',line, 
+else: print ("Current dump is not found on backup server: " + backup_server + ":/mnt/backup/db/mysql/" + db + "/current/")
+print '-------------- '
+if len(old_dump)>0:
+   print ("Old dump found for given user in " + backup_server + ":/mnt/backup/db/mysql/" + db + "/old/")
+   for  line in old_dump[1:]:
+        print '\t',line,
+else: print ("Old dump is not found on backup server: " + backup_server + ":/mnt/backup/db/mysql/" + db + "/old/")
+print '-------------- '
+if len(very_old_dump)>0:
+   print ("Very old dump found for given user in " + backup_server + ":/mnt/backup/db/mysql/" + db + "/very_old/")
+   for  line in very_old_dump[1:]:
+        print '\t',line,
+else: print ("Very old dump is not found on backup server: " + backup_server + ":/mnt/backup/db/mysql/" + db + "/very_old/")
+
+
+# Restore backup if such options were given
+if (options.backup_time) and (options.backup_name):
+     print '\n--------------'
+     print 'Retoring process started.....'
+     restore_from = "/mnt/backup/db/mysql/" + db + "/" + options.backup_time + "/" + options.backup_name
+     print ('Backup will be restored from ' + backup_server +':' + restore_from)
+     time.sleep(5)
+     command = "scp " + backup_server + ":" + restore_from + " " + options.host + ":/home/" + options.user + "/"
+     ssh_newkey = 'Are you sure you want to continue connecting'
+     p=pexpect.spawn(command)
+     server_answers = p.expect([ssh_newkey, 'password:', pexpect.EOF])
+     if server_answers == 0:
+    	print "I say yes"
+    	p.sendline('yes')
+    	server_answers = p.expect(['password:', pexpect.EOF])
+     if server_answers == 1:
+    	print "I give password",
+	p.sendline("mypassword")
+	p.expect(pexpect.EOF)
+     elif server_answers == 2:
+    	print 'Copy dump to destination server process bar: '
+    	pass
+     print p.before
+     # Dump current and restore old
+     ssh = paramiko.SSHClient()
+     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+     ssh.connect(options.host)
+     (stdin, stdout, stderr) = ssh.exec_command("/usr/bin/mysqldump " + db + " > /root/" + db + ".mysql")
+     stdout = stdout.readlines()
+     stderr  = stderr.readlines()
+     if stdout:
+        print stdout
+     elif stderr:
+        print stderr
+        sys.exit("Error dumping current database. Fix an error and run script again with the same options")
+     else:
+        (stdin, stdout, stderr) = ssh.exec_command("ls -lht /root/" + db + ".mysql")
+        print '\nCurrent database dumped : '
+        for line in  stdout.readlines():
+            print line,
+        (stdin, stdout, stderr) = ssh.exec_command("tail -1 /root/" + db + ".mysql")
+        for line in  stdout.readlines():
+            print line,
+        time.sleep(5)
+        print '\nRestoring from copied dump:', "/home/" + options.user + "/"+ options.backup_name
+        print 'You will have 10 sec now to cancell this job..'
+        time.sleep(10)
+        print 'Restoring..'
+        (stdin, stdout, stderr) = ssh.exec_command("gunzip < " + "/home/" + options.user + "/"+ options.backup_name  + " | mysql " + db)
+        if stdout.readlines():
+           for line in stdout.readlines():
+               print line,
+        elif stderr.readlines():
+           for line in stderr.readlines():
+               print line,
+        else:
+           print ('Dump restored succesfully.\nJist in case reset OBB cache on ' + options.host + ' with command: /usr/share/obbdeploy/manager.php --task=set-permissions --user='+db+'-www')
+     ssh.close()
