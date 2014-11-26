@@ -1,0 +1,125 @@
+# Script checks cron-job files on local machine
+
+import commands
+import psycopg2
+import os, sys
+import re
+import smtplib
+
+con = None
+IP=commands.getoutput("/sbin/ifconfig").split("\n")[1].split()[1][5:]
+hostname = commands.getoutput("/bin/hostname -f")
+s_name = commands.getoutput("/bin/grep '\$sname' /home/pc/pc-scripts/config.pl | /bin/cut -d '\"' -f 2")
+
+sender = 'root@' + hostname
+receiver = ['XX']
+job_file = '/var/spool/cron/'
+smtp_daemon_host = 'localhost'
+
+users_have_to_have_cron = []
+crons_found_on_fs = []
+missed_crons = ''
+openbizbox_install = ''
+test_db_connect = ''
+openbizbox_install_result = ''
+
+def report_to_noc(text):
+        TEXT = text
+        SUBJECT = 'Some Cron-job files MISSED on ' + hostname
+        message = 'Subject: %s\n\n%s' % (SUBJECT, TEXT)
+        server = smtplib.SMTP(smtp_daemon_host)
+        server.sendmail(sender, receiver, message)
+        server.quit()
+
+def db_user_searcher(text):
+	db_user_matched = re.search('DB_USER', text)
+	if db_user_matched: return text
+	else: return False
+
+def db_pass_searcher(text):
+	db_pass_matched = re.search('DB_PASS=', line)
+	if db_pass_matched: return text
+	else: return False
+
+def db_host_searcher(text):
+	db_host_matched = re.search('DB_SERVER=', line)
+	if db_host_matched: return text
+	else: return False
+ 
+def db_name_searcher(text):
+        db_name_matched = re.search('DB_NAME=', line)
+	if db_name_matched: return text
+	else: return False
+
+try:
+	con = psycopg2.connect(database='XX', user='XX', password='XX', host='XX')
+        cur = con.cursor()
+        cur.execute("""\
+			SELECT  acc_d.login
+			FROM oscommerce os, packages as pkg, package_servers as pkg_srv, servers as srv, account_data as acc_d
+			where os.package_id = pkg.id
+			and pkg.id=pkg_srv.package_id
+			and pkg_srv.server_id=srv.id
+			and acc_d.package_id=pkg.id
+			and srv.active=true
+			and pkg.date_deleted is NULL
+			and srv.ip=%s
+			group by acc_d.login
+                	ORDER BY acc_d.login;
+                	""",[IP])	
+	while (1):
+                row = cur.fetchone ()
+                if row == None:
+                        break
+                login = row[0]
+		users_have_to_have_cron.append(login + '-www')
+	con.close()
+	
+	for file in os.listdir(job_file):
+		crons_found_on_fs.append(file)
+
+	for item in users_have_to_have_cron:
+		if item not in crons_found_on_fs:
+		   missed_crons += '\t' + item + ',\n'
+		   openbizbox_install = '/home/' + str(item.split('-www')[0]) + '/configs/openbizbox_install.info'
+		   if os.path.exists(openbizbox_install):
+			fh = open(openbizbox_install, 'r')
+			db_user = ''
+			db_pass = ''
+			db_name = ''
+			db_host = ''
+			for line in fh:
+				db_user_matched = db_user_searcher(line)
+				if db_user_matched:
+					db_user = db_user_matched.split('=')[1].replace('\n','')
+				db_pass_matched = db_pass_searcher(line) 
+				if db_pass_matched:
+					db_pass = db_pass_matched.split('=')[1].replace('\n','')
+				db_host_matched = db_host_searcher(line)
+				if db_host_matched:
+					db_host = db_host_matched.split('=')[1].replace('\n','')
+				db_name_matched = db_name_searcher(line)
+				if db_name_matched:
+					db_name = db_name_matched.split('=')[1].replace('\n','')
+			fh.close()
+			
+			try:
+				con = psycopg2.connect(
+						database = db_name, 
+						user = db_user, 
+						password = db_pass, 
+						host = db_host)
+				test_db_connect += 'OpenBiz config found on fs, DB connection is OK: ' + db_host + '@' +db_name + '\n'
+				con.close()
+			except:
+				test_db_connect += 'OpenBiz config found on fs, DB connection failed: ' + db_host + '@' + db_name + '\n'
+		   else:
+			openbizbox_install_result += 'OpenBiz config not found on fs ' + openbizbox_install + ' for ' + item + '\n'
+	
+	if missed_crons != '':
+		text = "Hi devs,\nFollowing cron-job files missed: \n" + missed_crons + '\n\n' + '\nDebug info:' +'\n\n' + test_db_connect + '\n'  + openbizbox_install_result
+		report_to_noc(text)
+
+except psycopg2.DatabaseError, e:
+    print 'Error %s' % e
+    sys.exit(1)
