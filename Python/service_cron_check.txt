@@ -37,17 +37,17 @@ def db_user_searcher(text):
 	else: return False
 
 def db_pass_searcher(text):
-	db_pass_matched = re.search('DB_PASS=', line)
+	db_pass_matched = re.search('DB_PASS=', text)
 	if db_pass_matched: return text
 	else: return False
 
 def db_host_searcher(text):
-	db_host_matched = re.search('DB_SERVER=', line)
+	db_host_matched = re.search('DB_SERVER=', text)
 	if db_host_matched: return text
 	else: return False
  
 def db_name_searcher(text):
-        db_name_matched = re.search('DB_NAME=', line)
+        db_name_matched = re.search('DB_NAME=', text)
 	if db_name_matched: return text
 	else: return False
 
