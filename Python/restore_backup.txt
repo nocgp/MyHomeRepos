@@ -1,11 +1,9 @@
 #!/bin/env python
-""" 
-Please note that script is "customer specific"
-     Usage:
+""" Usage:
 see available dumps: --user longisland --host XX
 restore from dump: --user longisland --host XX --backup_time old(current) --backup_name file_name
 """
-import sys,re,time
+import sys,re
 import paramiko
 from paramiko.ssh_exception import SSHException, BadHostKeyException, AuthenticationException
 from socket import error as socket_error
@@ -21,7 +19,7 @@ parser.add_option('--backup_name', action="store", type="str")
 options, args = parser.parse_args()
 
 
-backup_server = 'backup.server'
+backup_server = 'backup.srvlan.local'
 openbizbox_install = '/home/' + options.user + '/configs/openbizbox_install.info'
 openbizbox_content = ''
 db = ''
@@ -69,31 +67,30 @@ except (BadHostKeyException, AuthenticationException,SSHException, socket_error)
 print '\nAvailable dumps are:\n'
 print '-------------- '
 if len(current_dump)>0:
-   print ("Current dump for given user in " + backup_server + ":/mnt/backup/db/mysql/" + db + "/current/")
+   print ("Current dump for given user in backup:/mnt/backup/db/mysql/" + db + "/current/")
    for line in current_dump[1:]:
        print '\t',line, 
-else: print ("Current dump is not found on backup server: " + backup_server + ":/mnt/backup/db/mysql/" + db + "/current/")
+else: print ("Current dump is not found on backup server: backup:/mnt/backup/db/mysql/" + db + "/current/")
 print '-------------- '
 if len(old_dump)>0:
-   print ("Old dump found for given user in " + backup_server + ":/mnt/backup/db/mysql/" + db + "/old/")
+   print ("Old dump found for given user in backup:/mnt/backup/db/mysql/" + db + "/old/")
    for  line in old_dump[1:]:
         print '\t',line,
-else: print ("Old dump is not found on backup server: " + backup_server + ":/mnt/backup/db/mysql/" + db + "/old/")
+else: print ("Old dump is not found on backup server: backup:/mnt/backup/db/mysql/" + db + "/old/")
 print '-------------- '
 if len(very_old_dump)>0:
-   print ("Very old dump found for given user in " + backup_server + ":/mnt/backup/db/mysql/" + db + "/very_old/")
+   print ("Very old dump found for given user in backup:/mnt/backup/db/mysql/" + db + "/very_old/")
    for  line in very_old_dump[1:]:
         print '\t',line,
-else: print ("Very old dump is not found on backup server: " + backup_server + ":/mnt/backup/db/mysql/" + db + "/very_old/")
+else: print ("Very old dump is not found on backup server: backup:/mnt/backup/db/mysql/" + db + "/very_old/")
 
 
-# Restore backup if such options were given
+# Restore backup if options were given
 if (options.backup_time) and (options.backup_name):
      print '\n--------------'
      print 'Retoring process started.....'
      restore_from = "/mnt/backup/db/mysql/" + db + "/" + options.backup_time + "/" + options.backup_name
      print ('Backup will be restored from ' + backup_server +':' + restore_from)
-     time.sleep(5)
      command = "scp " + backup_server + ":" + restore_from + " " + options.host + ":/home/" + options.user + "/"
      ssh_newkey = 'Are you sure you want to continue connecting'
      p=pexpect.spawn(command)
@@ -107,7 +104,7 @@ if (options.backup_time) and (options.backup_name):
 	p.sendline("mypassword")
 	p.expect(pexpect.EOF)
      elif server_answers == 2:
-    	print 'Copy dump to destination server process bar: '
+    	print 'Copy backup to destination server process bar: '
     	pass
      print p.before
      # Dump current and restore old
@@ -130,11 +127,7 @@ if (options.backup_time) and (options.backup_name):
         (stdin, stdout, stderr) = ssh.exec_command("tail -1 /root/" + db + ".mysql")
         for line in  stdout.readlines():
             print line,
-        time.sleep(5)
         print '\nRestoring from copied dump:', "/home/" + options.user + "/"+ options.backup_name
-        print 'You will have 10 sec now to cancell this job..'
-        time.sleep(10)
-        print 'Restoring..'
         (stdin, stdout, stderr) = ssh.exec_command("gunzip < " + "/home/" + options.user + "/"+ options.backup_name  + " | mysql " + db)
         if stdout.readlines():
            for line in stdout.readlines():
