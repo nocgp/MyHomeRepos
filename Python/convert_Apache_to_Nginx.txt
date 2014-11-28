@@ -1,0 +1,40 @@
+
+
+apache_conf= open('/home/iana/vhosts.conf', 'r')
+nginx_conf = open('/home/iana/nginx_vhosts.conf', 'w')
+server_name = ''
+
+for line in apache_conf:
+    if line.startswith('<VirtualHost *:80>'):
+        print ('server {\n' + '\t' + 'listen 80;')
+    elif line.startswith(' ServerName'):
+        new_line = line.split('ServerName')
+        server_name = 'server_name' + new_line[1].rstrip('\n')
+    elif line.startswith(' ServerAlias'):
+        new_line = line.split('ServerAlias')
+        server_name = server_name + new_line[1].rstrip('\n') + ';'
+        print ('\t' + server_name),
+    #elif line.startswith(' ServerAdmin'):
+    elif line.startswith(' DocumentRoot'):
+        new_line = line.split('DocumentRoot')
+        print ('\n' + '\t' + 'root '+ new_line[1].rstrip('\n') + ';')
+    elif line.startswith(' ErrorLog'):
+        new_line = line.split('ErrorLog')
+        print ('\t' + 'error_log '+ new_line[1].rstrip('\n') + ';')
+    #elif line.startswith(' <Directory'):
+     #   new_line = line.split('ErrorLog')
+      #  print ('\t' + 'error_log '+ new_line[1] + ';')
+    #elif line.startswith('  Options'):
+    #elif line.startswith('  AddHandler'):
+    #elif line.startswith('  FCGIWrapper'):
+    #elif line.startswith(' ScriptAlias'):
+    #elif line.startswith(' SuexecUserGroup'):
+    #elif line.startswith(' DefaultInitEnv'):
+    #elif line.startswith(' IPCCommTimeout'):
+    #elif line.startswith('</VirtualHost>'):
+        print ('\n' +'\tlocation / {' + '\n' + '\ttry_files' +'\t$uri $uri/ =404;' + '\n' + '\t' +'\t'+ '\t}')
+        print ('\n' +'\tlocation ~ \.php$ {' + '\n'+'\tfastcgi_pass   127.0.0.1:8000;' + \
+            '\n' + '\tfastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;' + \
+            '\n' + '\tinclude        fastcgi_params;' + \
+            '\n' + '\t' + '\t' + '\t}')
+        print '}\n'
