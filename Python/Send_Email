@@ -3,28 +3,29 @@
 """
 Zabbix SMTP Alert script for gmail.
 """
- 
+ 
 import sys
 import smtplib
 from email.MIMEText import MIMEText
 from email.Header import Header
 from email.Utils import formatdate
- 
+ 
 # Mail Account
-MAIL_ACCOUNT = 'your.account@gmail.com'
-MAIL_PASSWORD = 'your mail password'
- 
+
+MAIL_ACCOUNT = 'zabbix.cokme@gmail.com'
+MAIL_PASSWORD = 'z!234567'
+
 # Sender Name
 SENDER_NAME = u'Zabbix Alert'
- 
+ 
 # Mail Server
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
 # TLS
 SMTP_TLS = True
- 
+ 
 def send_mail(recipient, subject, body, encoding='utf-8'):
-    print ‘I am in send_mail funk’
+    print 'I am in send_mail funk'
     session = None
     msg = MIMEText(body, 'plain', encoding)
     msg['Subject'] = Header(subject, encoding)
@@ -39,23 +40,23 @@ def send_mail(recipient, subject, body, encoding='utf-8'):
             session.ehlo()
             session.login(MAIL_ACCOUNT, MAIL_PASSWORD)
         session.sendmail(MAIL_ACCOUNT, recipient, msg.as_string())
-	   print ‘Email sent : ’, recipient, subject, body
+	print 'Email sent : ', recipient, subject, body
     except Exception as e:
         raise e
     finally:
         # close session
         if session:
             session.quit()
- 
+ 
 if __name__ == '__main__':
     """
     recipient = sys.argv[1]
     subject = sys.argv[2]
     body = sys.argv[3]
     """
-    print (‘recipient :’ + sys.argv[1] + ‘subject : ’ + sys.argv[2] + ‘body : ’ + sys.argv[3] + ’ something else : ’ + sys.argv[0])
+    print ('recipient :' + sys.argv[1] + 'subject : ' + sys.argv[2] + 'body : ' + sys.argv[3] + ' something else : ' + sys.argv[0])
     if len(sys.argv) == 4:
-        print ‘4 args , I am sending email’
+        print '4 args , I am sending email'
         send_mail(
             recipient=sys.argv[1],
             subject=sys.argv[2],
