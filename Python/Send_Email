@@ -12,7 +12,7 @@ from email.Utils import formatdate
  
 # Mail Account
 
-MAIL_ACCOUNT = 'zabbix.cokme@gmail.com'
+MAIL_ACCOUNT = ''
 MAIL_PASSWORD = 'z!234567'
 
 # Sender Name
